@@ -303,49 +303,32 @@ def generate_documents(use_accordion=True):
 
 
 def render_sidebar():
-    """Renderiza la barra lateral con componentes mejorados."""
+    """Renderiza la barra lateral compacta."""
     st.sidebar.markdown("### Generador")
     st.sidebar.caption("Análisis Funcional")
-    st.sidebar.divider()
     
     # Indicador de progreso con metric card
     if st.session_state.sections_data:
         progress = calculate_progress()
         col1, col2 = st.sidebar.columns(2)
         with col1:
-            st.metric(
-                label="Progreso",
-                value=f"{progress}%",
-                delta=f"{int(progress * (len(SECTIONS)-1) / 100)} secciones"
-            )
+            st.metric(label="Progreso", value=f"{progress}%")
         with col2:
-            st.metric(
-                label="Total",
-                value=f"{len(SECTIONS)-1}",
-                delta="secciones"
-            )
+            st.metric(label="Total", value=f"{len(SECTIONS)-1}")
         style_metric_cards(border_left_color="#ED7D31")
-        st.sidebar.divider()
-    
-    st.sidebar.divider()
     
     # Opciones de generacion con toggle switch
-    st.sidebar.markdown("**Opciones de Salida**")
+    st.sidebar.markdown("**Salida**")
     use_accordion = st.sidebar.toggle(
-        "HTML con acordeones (Loop)",
+        "HTML con acordeones",
         value=True,
         key="opt_accordion",
     )
     
-    if not use_accordion:
-        st.sidebar.info("Se generara HTML completo sin acordeones.")
-    
-    st.sidebar.divider()
-    
     # Logo
-    st.sidebar.markdown("**Logo Corporativo**")
+    st.sidebar.markdown("**Logo**")
     uploaded_logo = st.sidebar.file_uploader(
-        "Subir logo (.png)",
+        "Logo (.png)",
         type=['png'],
         key="logo_uploader",
         label_visibility="collapsed"
@@ -354,22 +337,15 @@ def render_sidebar():
     if uploaded_logo is not None:
         st.session_state.uploaded_logo = uploaded_logo
         st.session_state.logo_temp_path = save_uploaded_logo(uploaded_logo)
-        st.sidebar.image(uploaded_logo, width=150, caption="Logo cargado")
+        st.sidebar.image(uploaded_logo, width=120, caption="")
     
-    st.sidebar.divider()
-    
-    # Botón para cambiar modo (solo si ya se seleccionó uno)
+    # Botón para cambiar modo
     if st.session_state.modo_seleccionado is not None:
-        st.sidebar.divider()
         if st.sidebar.button("Cambiar modo", key="btn_cambiar_modo", use_container_width=True):
             st.session_state.modo_seleccionado = None
             st.rerun()
     
-    st.sidebar.divider()
-    
-    # Info del proyecto
-    st.sidebar.markdown("**Generador v1.2**")
-    st.sidebar.caption("Herramienta de documentación")
+    st.sidebar.caption("Generador v1.2")
     
     # Determinar modo actual
     modo = st.session_state.modo_seleccionado if st.session_state.modo_seleccionado else "Formulario Web"
@@ -1071,8 +1047,7 @@ def main():
         # Sidebar minimal en welcome screen
         st.sidebar.markdown("### Generador")
         st.sidebar.caption("Análisis Funcional")
-        st.sidebar.divider()
-        st.sidebar.info("Seleccioná un modo de trabajo para comenzar.")
+        st.sidebar.markdown("Seleccioná un modo para comenzar.", unsafe_allow_html=True)
         
         render_welcome_screen()
         return
