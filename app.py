@@ -257,16 +257,6 @@ def render_sidebar():
     
     st.sidebar.divider()
     
-    # Nombre de archivo personalizado
-    st.session_state.custom_filename = st.sidebar.text_input(
-        "Nombre de archivo (opcional)",
-        value=st.session_state.custom_filename,
-        placeholder="DMND...",
-        key="custom_name"
-    )
-    
-    st.sidebar.divider()
-    
     # Opciones de generacion con toggle switch
     st.sidebar.markdown("**Opciones de Salida**")
     use_accordion = st.sidebar.toggle(
