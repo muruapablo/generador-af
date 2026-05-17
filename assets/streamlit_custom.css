@@ -193,14 +193,6 @@ h3 {
 }
 
 /* ============================================
-   METRICAS
-   ============================================ */
-[data-testid="stMetric"] {
-  border-radius: 12px;
-  padding: 16px;
-}
-
-/* ============================================
    CODE BLOCKS
    ============================================ */
 [data-testid="stCode"] pre {
@@ -360,14 +352,4 @@ hr {
 [data-testid="stExpander"]:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-/* Transición en metric cards */
-[data-testid="stMetric"] {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-[data-testid="stMetric"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }

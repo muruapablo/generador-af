@@ -8,7 +8,6 @@ from typing import Dict, Any, List
 
 # Librerías UI extras
 from streamlit_option_menu import option_menu
-from streamlit_extras.metric_cards import style_metric_cards
 from stqdm import stqdm
 
 # Añadir engine al path
@@ -301,15 +300,11 @@ def render_sidebar():
     st.sidebar.markdown("### Generador")
     st.sidebar.caption("Análisis Funcional")
     
-    # Indicador de progreso con metric card
+    # Indicador de progreso
     if st.session_state.sections_data:
         progress = calculate_progress()
-        col1, col2 = st.sidebar.columns(2)
-        with col1:
-            st.metric(label="Progreso", value=f"{progress}%")
-        with col2:
-            st.metric(label="Total", value=f"{len(SECTIONS)-1}")
-        style_metric_cards(border_left_color="#ED7D31")
+        st.sidebar.progress(progress / 100.0, text=f"Progreso: {progress}%")
+        st.sidebar.caption(f"{progress}% completado ({int(progress * (len(SECTIONS)-1) / 100)}/{len(SECTIONS)-1} secciones)")
     
     # Opciones de generacion con toggle switch
     st.sidebar.markdown("**Salida**")
@@ -339,7 +334,7 @@ def render_sidebar():
             st.session_state.modo_seleccionado = None
             st.rerun()
     
-    st.sidebar.caption("Generador v1.2")
+    st.sidebar.caption("Generador v1.3")
     
     # Determinar modo actual
     modo = st.session_state.modo_seleccionado if st.session_state.modo_seleccionado else "Formulario Web"
