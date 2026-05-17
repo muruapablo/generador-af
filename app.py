@@ -174,8 +174,8 @@ def generate_documents(use_accordion=True):
 
 def render_sidebar():
     """Renderiza la barra lateral."""
-    st.sidebar.markdown("### Generador AF")
-    st.sidebar.caption("Análisis Funcional COMEX")
+    st.sidebar.markdown("### Generador")
+    st.sidebar.caption("Análisis Funcional")
     st.sidebar.divider()
     
     # Indicador de progreso
@@ -233,8 +233,8 @@ def render_sidebar():
     st.sidebar.divider()
     
     # Info del proyecto
-    st.sidebar.markdown("**Generador AF v1.2**")
-    st.sidebar.caption("Herramienta de documentación COMEX")
+    st.sidebar.markdown("**Generador v1.2**")
+    st.sidebar.caption("Herramienta de documentación")
     
     return modo, use_accordion
 
