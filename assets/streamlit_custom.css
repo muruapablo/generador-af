@@ -238,3 +238,138 @@ hr {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(128, 128, 128, 0.6);
 }
+
+/* ============================================
+   SKELETON LOADERS (Shimmer Effect)
+   ============================================ */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-base {
+  background: linear-gradient(90deg, var(--skeleton-bg) 25%, var(--skeleton-highlight) 50%, var(--skeleton-bg) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+.skeleton-title {
+  height: 32px;
+  width: 60%;
+  margin-bottom: 24px;
+}
+
+.skeleton-tab {
+  height: 40px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.skeleton-input {
+  height: 48px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.skeleton-textarea {
+  height: 120px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.skeleton-button {
+  height: 48px;
+  width: 200px;
+  margin-top: 24px;
+}
+
+/* Variables de skeleton que se adaptan al tema */
+.stApp {
+  --skeleton-bg: rgba(128, 128, 128, 0.12);
+  --skeleton-highlight: rgba(128, 128, 128, 0.22);
+}
+
+/* ============================================
+   ANIMACIONES DE TABS (Fade + Slide Up)
+   ============================================ */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes buttonStagger {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stTabs [data-baseweb="tab-panel"] {
+  animation: tabFadeIn 0.3s ease-out;
+}
+
+/* Hover suave en tabs */
+.stTabs [data-baseweb="tab"] {
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+  transform: translateY(-2px);
+}
+
+/* Animación en contenido de secciones */
+[data-testid="stVerticalBlock"] > div > div > div {
+  animation: contentFadeIn 0.3s ease-out;
+}
+
+/* Animación staggered para botones de descarga */
+[data-testid="stDownloadButton"] {
+  animation: buttonStagger 0.3s ease-out backwards;
+}
+
+[data-testid="stDownloadButton"]:nth-child(1) { animation-delay: 0ms; }
+[data-testid="stDownloadButton"]:nth-child(2) { animation-delay: 100ms; }
+[data-testid="stDownloadButton"]:nth-child(3) { animation-delay: 200ms; }
+[data-testid="stDownloadButton"]:nth-child(4) { animation-delay: 300ms; }
+
+/* Transición suave en expanders */
+[data-testid="stExpander"] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-testid="stExpander"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Transición en metric cards */
+[data-testid="stMetric"] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-testid="stMetric"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}

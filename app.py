@@ -817,12 +817,99 @@ def render_upload_mode():
                         )
 
 
+def render_skeleton():
+    """Muestra skeleton loaders mientras la app inicializa."""
+    skeleton_html = """
+    <style>
+    .skeleton-container {
+        padding: 1rem 0;
+    }
+    .skeleton-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .skeleton-col {
+        flex: 1;
+    }
+    .skeleton-block {
+        background: linear-gradient(90deg, var(--skeleton-bg) 25%, var(--skeleton-highlight) 50%, var(--skeleton-bg) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.5s infinite;
+        border-radius: 8px;
+        width: 100%;
+    }
+    .skeleton-title {
+        height: 32px;
+        width: 60%;
+        margin-bottom: 1.5rem;
+    }
+    .skeleton-tab-row {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 1rem;
+        background: rgba(128,128,128,0.08);
+        padding: 6px;
+        border-radius: 12px;
+    }
+    .skeleton-tab {
+        height: 40px;
+        flex: 1;
+        border-radius: 8px;
+    }
+    .skeleton-input {
+        height: 48px;
+    }
+    .skeleton-textarea {
+        height: 120px;
+    }
+    .skeleton-button {
+        height: 48px;
+        width: 200px;
+        margin-top: 1rem;
+    }
+    </style>
+    <div class="skeleton-container">
+        <div class="skeleton-block skeleton-title"></div>
+        <div class="skeleton-tab-row">
+            <div class="skeleton-block skeleton-tab"></div>
+            <div class="skeleton-block skeleton-tab"></div>
+            <div class="skeleton-block skeleton-tab"></div>
+        </div>
+        <div class="skeleton-row">
+            <div class="skeleton-col">
+                <div class="skeleton-block skeleton-input" style="margin-bottom: 1rem;"></div>
+            </div>
+            <div class="skeleton-col">
+                <div class="skeleton-block skeleton-input" style="margin-bottom: 1rem;"></div>
+            </div>
+        </div>
+        <div class="skeleton-block skeleton-textarea"></div>
+        <div class="skeleton-block skeleton-textarea"></div>
+        <div class="skeleton-block skeleton-button"></div>
+    </div>
+    """
+    st.markdown(skeleton_html, unsafe_allow_html=True)
+
+
 def main():
     """Función principal."""
+    import time
+    
     # Cargar CSS custom antes de todo
     load_custom_css()
     
     init_session_state()
+    
+    # Skeleton loader en carga inicial (solo una vez por sesión)
+    if 'app_loaded' not in st.session_state:
+        placeholder = st.empty()
+        with placeholder.container():
+            render_skeleton()
+        time.sleep(0.8)
+        placeholder.empty()
+        st.session_state.app_loaded = True
+        st.rerun()
     
     # Renderizar sidebar
     modo, _ = render_sidebar()
