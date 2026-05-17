@@ -157,6 +157,71 @@ def get_filename() -> str:
     return "AnalisisFuncional"
 
 
+def generate_markdown() -> str:
+    """Genera el contenido Markdown del documento actual."""
+    md_content = []
+    
+    # Título principal
+    dmnd = st.session_state.metadata.get('numero_demanda', '')
+    titulo = st.session_state.metadata.get('titulo', '')
+    if dmnd and titulo:
+        md_content.append(f"# DMND{dmnd} - {titulo}")
+    elif titulo:
+        md_content.append(f"# {titulo}")
+    else:
+        md_content.append("# Análisis Funcional")
+    md_content.append("")
+    
+    # Bloque de metadatos
+    md_content.append("## Metadatos")
+    md_content.append(f"- numero_demanda: {st.session_state.metadata.get('numero_demanda', '')}")
+    md_content.append(f"- titulo: {st.session_state.metadata.get('titulo', '')}")
+    md_content.append(f"- fecha: {st.session_state.metadata.get('fecha', '')}")
+    md_content.append(f"- ciclo: {st.session_state.metadata.get('ciclo', '')}")
+    md_content.append(f"- sistema: {st.session_state.metadata.get('sistema', 'COMEX')}")
+    md_content.append(f"- version: {st.session_state.metadata.get('version', '1.0')}")
+    md_content.append(f"- autor: {st.session_state.metadata.get('autor', '')}")
+    md_content.append("")
+    md_content.append("---")
+    md_content.append("")
+    
+    # Secciones
+    for sec in SECTIONS:
+        sec_id = sec['id']
+        if sec_id == 'portada':
+            continue  # La portada ya está en metadatos
+        
+        if sec_id in st.session_state.sections_data:
+            data = st.session_state.sections_data[sec_id]
+            text = data.get('text', '')
+            table = data.get('table')
+            include_table = data.get('include_table', True)
+            
+            # Agregar título de sección
+            md_content.append(f"## {sec['titulo']}")
+            md_content.append("")
+            
+            # Agregar texto de la sección
+            if text and text.strip():
+                md_content.append(text.strip())
+                md_content.append("")
+            
+            # Agregar tabla si existe y está incluida
+            if include_table and table and table.get('rows'):
+                import pandas as pd
+                df = pd.DataFrame(table['rows'], columns=table['headers'])
+                from engine.table_editor import dataframe_to_markdown
+                md_table = dataframe_to_markdown(df)
+                md_content.append(md_table)
+                md_content.append("")
+            
+            # Separador entre secciones
+            md_content.append("---")
+            md_content.append("")
+    
+    return "\n".join(md_content)
+
+
 def generate_documents(use_accordion=True):
     """Genera los documentos DOCX y HTML con barra de progreso."""
     filename = get_filename()
@@ -219,15 +284,22 @@ def generate_documents(use_accordion=True):
             )
             current_step += 1
     
-    # Crear ZIP
+    # Generar Markdown
+    md_path = os.path.join(output_dir, f"{filename}.md")
+    md_content = generate_markdown()
+    with open(md_path, 'w', encoding='utf-8') as f:
+        f.write(md_content)
+    
+    # Crear ZIP (incluye .md)
     zip_path = os.path.join(output_dir, f"{filename}.zip")
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         zipf.write(docx_path, os.path.basename(docx_path))
         zipf.write(html_path, os.path.basename(html_path))
         if html_full_path and os.path.exists(html_full_path):
             zipf.write(html_full_path, os.path.basename(html_full_path))
+        zipf.write(md_path, os.path.basename(md_path))
     
-    return docx_path, html_path, html_full_path, zip_path, output_dir
+    return docx_path, html_path, html_full_path, md_path, zip_path, output_dir
 
 
 def render_sidebar():
@@ -678,14 +750,15 @@ def render_formulario():
             
             with st.spinner("Generando documentos..."):
                 try:
-                    docx_path, html_path, html_full_path, zip_path, output_dir = generate_documents(
+                    docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
                         use_accordion=use_accordion_opt
                     )
                     
                     st.success("[OK] Documentos generados correctamente!")
                     
                     # Mostrar descargas
-                    cols_download = st.columns(4 if html_full_path else 3)
+                    total_cols = 5 if html_full_path else 4
+                    cols_download = st.columns(total_cols)
                     
                     with cols_download[0]:
                         with open(docx_path, "rb") as f:
@@ -697,6 +770,15 @@ def render_formulario():
                             )
                     
                     with cols_download[1]:
+                        with open(md_path, "rb") as f:
+                            st.download_button(
+                                label="Descargar Markdown",
+                                data=f.read(),
+                                file_name=os.path.basename(md_path),
+                                mime="text/markdown"
+                            )
+                    
+                    with cols_download[2]:
                         with open(html_path, "rb") as f:
                             label_html = "HTML Acordeones" if html_full_path else "Descargar HTML"
                             st.download_button(
@@ -707,7 +789,7 @@ def render_formulario():
                             )
                     
                     if html_full_path:
-                        with cols_download[2]:
+                        with cols_download[3]:
                             with open(html_full_path, "rb") as f:
                                 st.download_button(
                                     label="HTML Completo",
@@ -811,13 +893,14 @@ def render_upload_mode():
             if st.button("Generar DOCX y HTML", type="primary", key="gen_from_md_btn"):
                 try:
                     with st.spinner("Generando documentos..."):
-                        docx_path, html_path, html_full_path, zip_path, output_dir = generate_documents(
+                        docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
                             use_accordion=st.session_state.get('opt_accordion', True)
                         )
                         
                         st.session_state.generated_files = {
                             'docx': docx_path,
                             'html': html_path,
+                            'md': md_path,
                             'zip': zip_path
                         }
                         st.success("[OK] Documentos generados!")
