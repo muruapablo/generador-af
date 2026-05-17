@@ -6,6 +6,13 @@ import shutil
 from datetime import datetime
 from typing import Dict, Any, List
 
+# Librerías UI extras
+from streamlit_option_menu import option_menu
+from streamlit_extras.metric_cards import style_metric_cards
+from streamlit_extras.stoggle import stoggle
+from streamlit_extras.colored_header import colored_header
+from stqdm import stqdm
+
 # Añadir engine al path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'engine'))
 
@@ -110,7 +117,7 @@ def get_filename() -> str:
 
 
 def generate_documents(use_accordion=True):
-    """Genera los documentos DOCX y HTML."""
+    """Genera los documentos DOCX y HTML con barra de progreso."""
     filename = get_filename()
     output_dir = os.path.join(GENERATED_DIR, filename)
     os.makedirs(output_dir, exist_ok=True)
@@ -129,38 +136,48 @@ def generate_documents(use_accordion=True):
                 'include_table': data.get('include_table', True)
             })
 
+    # Determinar pasos totales
+    total_steps = 3 if use_accordion else 2
+    current_step = 0
+    
     # Generar DOCX
     docx_path = os.path.join(output_dir, f"{filename}.docx")
-    docx_gen = DOCXGenerator(logo_path=st.session_state.logo_temp_path)
-    docx_gen.generate(
-        metadata=st.session_state.metadata,
-        sections=sections_list,
-        output_path=docx_path
-    )
+    for _ in stqdm(range(1), desc="Generando DOCX", total=total_steps, position=0):
+        docx_gen = DOCXGenerator(logo_path=st.session_state.logo_temp_path)
+        docx_gen.generate(
+            metadata=st.session_state.metadata,
+            sections=sections_list,
+            output_path=docx_path
+        )
+        current_step += 1
 
     # Generar HTML
     html_path = os.path.join(output_dir, f"{filename}.html")
-    html_gen = HTMLGenerator()
-    html_gen.generate(
-        metadata=st.session_state.metadata,
-        sections=sections_list,
-        output_path=html_path,
-        logo_path=st.session_state.logo_temp_path,
-        use_accordion=use_accordion
-    )
+    for _ in stqdm(range(1), desc="Generando HTML", total=total_steps, position=0):
+        html_gen = HTMLGenerator()
+        html_gen.generate(
+            metadata=st.session_state.metadata,
+            sections=sections_list,
+            output_path=html_path,
+            logo_path=st.session_state.logo_temp_path,
+            use_accordion=use_accordion
+        )
+        current_step += 1
     
     # Generar HTML completo adicional (si se usan acordeones)
     html_full_path = None
     if use_accordion:
         html_full_path = os.path.join(output_dir, f"{filename}_completo.html")
-        html_gen.generate(
-            metadata=st.session_state.metadata,
-            sections=sections_list,
-            output_path=html_full_path,
-            logo_path=st.session_state.logo_temp_path,
-            use_accordion=False
-        )
-
+        for _ in stqdm(range(1), desc="Generando HTML completo", total=total_steps, position=0):
+            html_gen.generate(
+                metadata=st.session_state.metadata,
+                sections=sections_list,
+                output_path=html_full_path,
+                logo_path=st.session_state.logo_temp_path,
+                use_accordion=False
+            )
+            current_step += 1
+    
     # Crear ZIP
     zip_path = os.path.join(output_dir, f"{filename}.zip")
     with zipfile.ZipFile(zip_path, 'w') as zipf:
@@ -173,24 +190,40 @@ def generate_documents(use_accordion=True):
 
 
 def render_sidebar():
-    """Renderiza la barra lateral."""
+    """Renderiza la barra lateral con componentes mejorados."""
     st.sidebar.markdown("### Generador")
     st.sidebar.caption("Análisis Funcional")
     st.sidebar.divider()
     
-    # Indicador de progreso
+    # Indicador de progreso con metric card
     if st.session_state.sections_data:
         progress = calculate_progress()
-        st.sidebar.markdown("**Progreso del documento**")
-        st.sidebar.progress(progress / 100.0)
-        st.sidebar.caption(f"{progress}% completado")
+        col1, col2 = st.sidebar.columns(2)
+        with col1:
+            st.metric(
+                label="Progreso",
+                value=f"{progress}%",
+                delta=f"{int(progress * (len(SECTIONS)-1) / 100)} secciones"
+            )
+        with col2:
+            st.metric(
+                label="Total",
+                value=f"{len(SECTIONS)-1}",
+                delta="secciones"
+            )
+        style_metric_cards(border_left_color="#ED7D31")
         st.sidebar.divider()
     
-    # Modo
-    modo = st.sidebar.radio(
-        "Modo de trabajo",
-        ["Formulario Web", "Subir Archivos (.md)"]
+    # Modo de trabajo con option_menu (íconos)
+    modo_opcion = option_menu(
+        menu_title="Modo de trabajo",
+        options=["Formulario Web", "Subir Archivos (.md)"],
+        icons=["layout-text-window-reverse", "cloud-upload-fill"],
+        menu_icon="cast",
+        default_index=0,
+        orientation="vertical",
     )
+    modo = modo_opcion
     
     st.sidebar.divider()
     
@@ -204,12 +237,12 @@ def render_sidebar():
     
     st.sidebar.divider()
     
-    # Opciones de generacion
-    st.sidebar.subheader("Opciones de Salida")
-    use_accordion = st.sidebar.checkbox(
-        "HTML con acordeones (Loop)",
-        value=True,
-        key="opt_accordion"
+    # Opciones de generacion con toggle switch
+    st.sidebar.markdown("**Opciones de Salida**")
+    use_accordion = stoggle(
+        label="HTML con acordeones (Loop)",
+        key="opt_accordion",
+        default_value=True,
     )
     
     if not use_accordion:
@@ -218,11 +251,12 @@ def render_sidebar():
     st.sidebar.divider()
     
     # Logo
-    st.sidebar.subheader("Logo Corporativo")
+    st.sidebar.markdown("**Logo Corporativo**")
     uploaded_logo = st.sidebar.file_uploader(
         "Subir logo (.png)",
         type=['png'],
-        key="logo_uploader"
+        key="logo_uploader",
+        label_visibility="collapsed"
     )
     
     if uploaded_logo is not None:
@@ -241,9 +275,11 @@ def render_sidebar():
 
 def render_formulario():
     """Renderiza el formulario web con secciones predefinidas."""
-    st.title("Generador de Análisis Funcional")
-    st.caption("Completa las secciones del documento. El formato corporativo se aplicará automáticamente.")
-    st.divider()
+    colored_header(
+        label="Generador de Análisis Funcional",
+        description="Completa las secciones del documento. El formato corporativo se aplicará automáticamente.",
+        color_name="orange-70"
+    )
     
     # Tabs por sección
     section_titles = [sec['titulo'] for sec in SECTIONS]
