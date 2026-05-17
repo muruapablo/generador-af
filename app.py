@@ -43,6 +43,12 @@ def load_custom_css():
     if os.path.exists(css_path):
         with open(css_path, "r", encoding="utf-8") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    
+    # Cargar Bootstrap Icons para iconos profesionales
+    st.markdown(
+        '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">',
+        unsafe_allow_html=True
+    )
 
 
 def calculate_progress():
@@ -111,7 +117,7 @@ def render_welcome_screen():
     
     with col1:
         with st.container(border=True):
-            st.markdown("### 📝 Formulario Web")
+            st.markdown('### <i class="bi bi-file-text"></i> Formulario Web', unsafe_allow_html=True)
             st.markdown("""
             **Ideal para:**
             - Crear documentos desde cero
@@ -125,7 +131,7 @@ def render_welcome_screen():
     
     with col2:
         with st.container(border=True):
-            st.markdown("### 📤 Subir Archivos")
+            st.markdown('### <i class="bi bi-cloud-upload"></i> Subir Archivos', unsafe_allow_html=True)
             st.markdown("""
             **Ideal para:**
             - Importar desde archivos Markdown
@@ -305,7 +311,7 @@ def render_sidebar():
     # Botón para cambiar modo (solo si ya se seleccionó uno)
     if st.session_state.modo_seleccionado is not None:
         st.sidebar.divider()
-        if st.sidebar.button("🔄 Cambiar modo", key="btn_cambiar_modo", use_container_width=True):
+        if st.sidebar.button("Cambiar modo", key="btn_cambiar_modo", use_container_width=True):
             st.session_state.modo_seleccionado = None
             st.rerun()
     
@@ -349,8 +355,8 @@ def render_formulario():
             has_content = len(text_content_check.strip()) > 20 if text_content_check else False
             
             if sec_id != 'portada':
-                status_emoji = "✅" if has_content else "📝"
-                st.caption(f"{status_emoji} Sección {'completada' if has_content else 'en progreso'}")
+                status_icon = '<i class="bi bi-check-circle-fill" style="color: #22C55E;"></i>' if has_content else '<i class="bi bi-pencil-square" style="color: #ED7D31;"></i>'
+                st.caption(f'{status_icon} Sección {"completada" if has_content else "en progreso"}', unsafe_allow_html=True)
             
             # SECCIÓN ESPECIAL: Portada (metadatos)
             if sec_id == 'portada':
