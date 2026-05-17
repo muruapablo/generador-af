@@ -9,7 +9,6 @@ from typing import Dict, Any, List
 # Librerías UI extras
 from streamlit_option_menu import option_menu
 from streamlit_extras.metric_cards import style_metric_cards
-from streamlit_extras.stoggle import stoggle
 from streamlit_extras.colored_header import colored_header
 from stqdm import stqdm
 
@@ -239,10 +238,10 @@ def render_sidebar():
     
     # Opciones de generacion con toggle switch
     st.sidebar.markdown("**Opciones de Salida**")
-    use_accordion = stoggle(
-        label="HTML con acordeones (Loop)",
+    use_accordion = st.sidebar.toggle(
+        "HTML con acordeones (Loop)",
+        value=True,
         key="opt_accordion",
-        default_value=True,
     )
     
     if not use_accordion:
