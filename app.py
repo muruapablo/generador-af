@@ -144,7 +144,7 @@ def render_welcome_screen():
                 st.rerun()
     
     st.divider()
-    st.info("💡 **Tip:** El modo Formulario Web es el más completo y recomendado para crear documentos nuevos.")
+    st.info('<i class="bi bi-lightbulb"></i> **Recomendado:** Formulario Web para documentos nuevos.', unsafe_allow_html=True)
 
 
 def save_uploaded_logo(uploaded_file) -> str:
