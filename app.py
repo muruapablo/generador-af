@@ -118,33 +118,21 @@ def render_welcome_screen():
     with col1:
         with st.container(border=True):
             st.markdown('### <i class="bi bi-file-text"></i> Formulario Web', unsafe_allow_html=True)
-            st.markdown("""
-            **Ideal para:**
-            - Crear documentos desde cero
-            - Editar sección por sección
-            - Usar el editor visual de tablas
-            - Agregar código SQL y estructuras
-            """)
-            if st.button("Comenzar con Formulario", type="primary", key="btn_formulario", use_container_width=True):
+            st.markdown("Crear documentos desde cero con editor visual.")
+            if st.button("Comenzar", type="primary", key="btn_formulario", use_container_width=True):
                 st.session_state.modo_seleccionado = "Formulario Web"
                 st.rerun()
     
     with col2:
         with st.container(border=True):
             st.markdown('### <i class="bi bi-cloud-upload"></i> Subir Archivos', unsafe_allow_html=True)
-            st.markdown("""
-            **Ideal para:**
-            - Importar desde archivos Markdown
-            - Parsear documentos existentes
-            - Generar automáticamente
-            - Reutilizar contenido previo
-            """)
-            if st.button("Comenzar con Archivos", type="primary", key="btn_archivos", use_container_width=True):
+            st.markdown("Importar archivos Markdown existentes.")
+            if st.button("Comenzar", type="primary", key="btn_archivos", use_container_width=True):
                 st.session_state.modo_seleccionado = "Subir Archivos (.md)"
                 st.rerun()
     
     st.divider()
-    st.info('<i class="bi bi-lightbulb"></i> **Recomendado:** Formulario Web para documentos nuevos.', unsafe_allow_html=True)
+    st.markdown('<i class="bi bi-lightbulb" style="color: #ED7D31;"></i> **Recomendado:** Formulario Web', unsafe_allow_html=True)
 
 
 def save_uploaded_logo(uploaded_file) -> str:
