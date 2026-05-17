@@ -1,8 +1,3 @@
-[theme]
-# Solo el color corporativo; fondo y texto se adaptan automáticamente al modo del sistema
-primaryColor = "#ED7D31"
-font = "sans serif"
-
 [server]
 headless = true
 runOnSave = true
