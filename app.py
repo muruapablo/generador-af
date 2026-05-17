@@ -9,7 +9,6 @@ from typing import Dict, Any, List
 # Librerías UI extras
 from streamlit_option_menu import option_menu
 from streamlit_extras.metric_cards import style_metric_cards
-from streamlit_extras.colored_header import colored_header
 from stqdm import stqdm
 
 # Añadir engine al path
@@ -104,13 +103,8 @@ def init_session_state():
 
 def render_welcome_screen():
     """Muestra la pantalla de bienvenida para seleccionar modo de trabajo."""
-    colored_header(
-        label="Generador de Análisis Funcional",
-        description="Seleccioná cómo querés empezar",
-        color_name="orange-70"
-    )
-    
-    st.markdown("### ¿Cómo querés empezar?")
+    st.header("Generador de Análisis Funcional", divider="orange")
+    st.caption("Seleccioná cómo querés empezar")
     st.caption("Elegí una opción para continuar. Podés cambiar de modo más tarde desde el sidebar.")
     
     col1, col2 = st.columns(2)
@@ -355,11 +349,8 @@ def render_sidebar():
 
 def render_formulario():
     """Renderiza el formulario web con secciones predefinidas."""
-    colored_header(
-        label="Generador de Análisis Funcional",
-        description="Completa las secciones del documento. El formato corporativo se aplicará automáticamente.",
-        color_name="orange-70"
-    )
+    st.header("Generador de Análisis Funcional", divider="orange")
+    st.caption("Completa las secciones del documento. El formato corporativo se aplicará automáticamente.")
     
     # Tabs por sección
     section_titles = [sec['titulo'] for sec in SECTIONS]
