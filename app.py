@@ -366,11 +366,22 @@ def render_formulario():
                 
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.session_state.metadata['fecha'] = st.text_input(
+                    import datetime as dt_module
+                    # Convertir fecha guardada a objeto date para el date_input
+                    fecha_str = st.session_state.metadata.get('fecha', datetime.now().strftime('%d-%m-%Y'))
+                    try:
+                        fecha_parts = fecha_str.split('-')
+                        fecha_default = dt_module.date(int(fecha_parts[2]), int(fecha_parts[1]), int(fecha_parts[0]))
+                    except (ValueError, IndexError):
+                        fecha_default = dt_module.date.today()
+                    
+                    fecha_seleccionada = st.date_input(
                         "Fecha",
-                        value=st.session_state.metadata.get('fecha', datetime.now().strftime('%d-%m-%Y')),
+                        value=fecha_default,
+                        format="DD-MM-YYYY",
                         key="portada_fecha"
                     )
+                    st.session_state.metadata['fecha'] = fecha_seleccionada.strftime('%d-%m-%Y')
                 with col2:
                     st.session_state.metadata['ciclo'] = st.text_input(
                         "Ciclo",
