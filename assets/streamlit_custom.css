@@ -30,8 +30,6 @@ h2 {
   font-weight: 600;
   font-size: 22px;
   margin-bottom: 16px;
-  border-bottom: 2px solid var(--comex-primary);
-  padding-bottom: 8px;
 }
 
 h3 {
