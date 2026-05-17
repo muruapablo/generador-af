@@ -1,0 +1,451 @@
+/* Estilos custom para Streamlit - Generador de Analisis Funcional */
+
+/* Paleta de colores corporativa COMEX */
+:root {
+  --comex-primary: #ED7D31;
+  --comex-primary-dark: #D4692A;
+  --comex-primary-light: #F2A870;
+  --comex-bg: #FAFBFC;
+  --comex-surface: #FFFFFF;
+  --comex-text-primary: #1F2328;
+  --comex-text-secondary: #57606A;
+  --comex-text-muted: #8C959F;
+  --comex-border: #D0D7DE;
+  --comex-border-light: #EAEEF2;
+  --comex-success: #22C55E;
+  --comex-warning: #F59E0B;
+  --comex-error: #EF4444;
+  --comex-info: #0969DA;
+}
+
+/* Tipografia base */
+html, body, [class*="css"] {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Header y titulos */
+h1 {
+  color: var(--comex-text-primary) !important;
+  font-weight: 700 !important;
+  font-size: 28px !important;
+  margin-bottom: 24px !important;
+}
+
+h2 {
+  color: var(--comex-text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 22px !important;
+  margin-bottom: 16px !important;
+  border-bottom: 2px solid var(--comex-primary) !important;
+  padding-bottom: 8px !important;
+}
+
+h3 {
+  color: var(--comex-text-secondary) !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+  margin-bottom: 12px !important;
+}
+
+/* Sidebar mejorada */
+[data-testid="stSidebar"] {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F6F8FA 100%) !important;
+  border-right: 1px solid var(--comex-border) !important;
+}
+
+[data-testid="stSidebar"] .block-container {
+  padding-top: 2rem !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+/* Cards de seccion */
+.stTabs [data-baseweb="tab-list"] {
+  gap: 4px !important;
+  background: var(--comex-border-light) !important;
+  padding: 6px !important;
+  border-radius: 12px !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  color: var(--comex-text-secondary) !important;
+  border: none !important;
+}
+
+.stTabs [aria-selected="true"] {
+  background: var(--comex-surface) !important;
+  color: var(--comex-primary) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+/* Contenedores tipo card */
+[data-testid="stVerticalBlock"] > div > div > div > div > div {
+  border-radius: 12px !important;
+}
+
+/* Inputs mejorados */
+[data-testid="stTextInput"] input,
+[data-testid="stTextArea"] textarea {
+  border-radius: 8px !important;
+  border: 1.5px solid var(--comex-border) !important;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-testid="stTextInput"] input:focus,
+[data-testid="stTextArea"] textarea:focus {
+  border-color: var(--comex-primary) !important;
+  box-shadow: 0 0 0 3px rgba(237, 125, 49, 0.15) !important;
+}
+
+/* Botones primarios */
+[data-testid="stButton"] button[kind="primary"] {
+  background: var(--comex-primary) !important;
+  border-radius: 10px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(237, 125, 49, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-testid="stButton"] button[kind="primary"]:hover {
+  background: var(--comex-primary-dark) !important;
+  box-shadow: 0 4px 12px rgba(237, 125, 49, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Botones secundarios */
+[data-testid="stButton"] button[kind="secondary"] {
+  border-radius: 10px !important;
+  border: 1.5px solid var(--comex-border) !important;
+  padding: 10px 20px !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-testid="stButton"] button[kind="secondary"]:hover {
+  border-color: var(--comex-primary) !important;
+  color: var(--comex-primary) !important;
+  background: rgba(237, 125, 49, 0.05) !important;
+}
+
+/* Checkboxes y toggles */
+[data-testid="stCheckbox"] label,
+[data-testid="stRadio"] label {
+  font-size: 14px !important;
+  color: var(--comex-text-secondary) !important;
+}
+
+/* Selectores y date pickers */
+[data-testid="stSelectbox"] > div,
+[data-testid="stDateInput"] > div {
+  border-radius: 8px !important;
+  border: 1.5px solid var(--comex-border) !important;
+}
+
+/* Info boxes */
+[data-testid="stInfo"] {
+  background: rgba(9, 105, 218, 0.08) !important;
+  border: 1px solid rgba(9, 105, 218, 0.2) !important;
+  border-radius: 10px !important;
+  padding: 16px !important;
+}
+
+[data-testid="stSuccess"] {
+  background: rgba(34, 197, 94, 0.08) !important;
+  border: 1px solid rgba(34, 197, 94, 0.2) !important;
+  border-radius: 10px !important;
+  padding: 16px !important;
+}
+
+[data-testid="stWarning"] {
+  background: rgba(245, 158, 11, 0.08) !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+  border-radius: 10px !important;
+  padding: 16px !important;
+}
+
+/* Dataframes y tablas */
+[data-testid="stDataFrame"] {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--comex-border) !important;
+}
+
+[data-testid="stDataFrame"] th {
+  background: #F6F8FA !important;
+  font-weight: 600 !important;
+  color: var(--comex-text-primary) !important;
+  padding: 12px 16px !important;
+}
+
+[data-testid="stDataFrame"] td {
+  padding: 10px 16px !important;
+  border-bottom: 1px solid var(--comex-border-light) !important;
+}
+
+/* Expander */
+[data-testid="stExpander"] {
+  border: 1px solid var(--comex-border) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  margin-bottom: 12px !important;
+}
+
+[data-testid="stExpander"] summary {
+  padding: 12px 16px !important;
+  font-weight: 600 !important;
+  color: var(--comex-text-primary) !important;
+  background: #FAFBFC !important;
+}
+
+/* File uploader */
+[data-testid="stFileUploader"] {
+  border: 2px dashed var(--comex-border) !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  text-align: center !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-testid="stFileUploader"]:hover {
+  border-color: var(--comex-primary) !important;
+  background: rgba(237, 125, 49, 0.02) !important;
+}
+
+/* Progress bar y metricas */
+[data-testid="stProgress"] > div > div {
+  background: var(--comex-primary) !important;
+  border-radius: 4px !important;
+}
+
+[data-testid="stMetric"] {
+  background: var(--comex-surface) !important;
+  border: 1px solid var(--comex-border) !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+}
+
+/* Code blocks en Streamlit */
+[data-testid="stCode"] pre {
+  border-radius: 10px !important;
+  background: #1E1E1E !important;
+  padding: 16px !important;
+}
+
+/* Caption y labels */
+[data-testid="stCaption"] {
+  color: var(--comex-text-muted) !important;
+  font-size: 13px !important;
+}
+
+/* Divider */
+hr {
+  border-color: var(--comex-border-light) !important;
+  margin: 24px 0 !important;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F1F1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C1C1C1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A1A1A1;
+}
+
+/* ============================================
+   DARK MODE - Soporte para prefers-color-scheme: dark
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  /* Variables para dark mode */
+  :root {
+    --comex-bg: #0D1117;
+    --comex-surface: #161B22;
+    --comex-text-primary: #E6EDF3;
+    --comex-text-secondary: #B0B8C4;
+    --comex-text-muted: #8C959F;
+    --comex-border: #30363D;
+    --comex-border-light: #21262D;
+  }
+
+  /* Tipografia base en dark mode */
+  html, body, [class*="css"] {
+    color: var(--comex-text-primary) !important;
+  }
+
+  /* Header y titulos */
+  h1 {
+    color: var(--comex-text-primary) !important;
+  }
+
+  h2 {
+    color: var(--comex-text-primary) !important;
+    border-bottom-color: var(--comex-primary) !important;
+  }
+
+  h3 {
+    color: var(--comex-text-secondary) !important;
+  }
+
+  /* Sidebar */
+  [data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #161B22 0%, #0D1117 100%) !important;
+    border-right-color: var(--comex-border) !important;
+  }
+
+  /* Tabs */
+  .stTabs [data-baseweb="tab-list"] {
+    background: var(--comex-border-light) !important;
+  }
+
+  .stTabs [data-baseweb="tab"] {
+    color: var(--comex-text-secondary) !important;
+  }
+
+  .stTabs [aria-selected="true"] {
+    background: var(--comex-surface) !important;
+    color: var(--comex-primary) !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+  }
+
+  /* Inputs */
+  [data-testid="stTextInput"] input,
+  [data-testid="stTextArea"] textarea {
+    background: #21262D !important;
+    color: var(--comex-text-primary) !important;
+    border-color: var(--comex-border) !important;
+  }
+
+  [data-testid="stTextInput"] input::placeholder,
+  [data-testid="stTextArea"] textarea::placeholder {
+    color: var(--comex-text-muted) !important;
+  }
+
+  [data-testid="stTextInput"] input:focus,
+  [data-testid="stTextArea"] textarea:focus {
+    border-color: var(--comex-primary) !important;
+    box-shadow: 0 0 0 3px rgba(237, 125, 49, 0.25) !important;
+  }
+
+  /* Botones secundarios */
+  [data-testid="stButton"] button[kind="secondary"] {
+    border-color: var(--comex-border) !important;
+    color: var(--comex-text-secondary) !important;
+  }
+
+  [data-testid="stButton"] button[kind="secondary"]:hover {
+    border-color: var(--comex-primary) !important;
+    color: var(--comex-primary) !important;
+    background: rgba(237, 125, 49, 0.1) !important;
+  }
+
+  /* Checkboxes y radios */
+  [data-testid="stCheckbox"] label,
+  [data-testid="stRadio"] label {
+    color: var(--comex-text-secondary) !important;
+  }
+
+  /* Info boxes dark */
+  [data-testid="stInfo"] {
+    background: rgba(88, 166, 255, 0.1) !important;
+    border-color: rgba(88, 166, 255, 0.3) !important;
+    color: var(--comex-text-primary) !important;
+  }
+
+  [data-testid="stSuccess"] {
+    background: rgba(34, 197, 94, 0.1) !important;
+    border-color: rgba(34, 197, 94, 0.3) !important;
+    color: var(--comex-text-primary) !important;
+  }
+
+  [data-testid="stWarning"] {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    color: var(--comex-text-primary) !important;
+  }
+
+  /* Dataframes y tablas */
+  [data-testid="stDataFrame"] {
+    border-color: var(--comex-border) !important;
+  }
+
+  [data-testid="stDataFrame"] th {
+    background: var(--comex-border-light) !important;
+    color: var(--comex-text-primary) !important;
+  }
+
+  [data-testid="stDataFrame"] td {
+    color: var(--comex-text-secondary) !important;
+    border-bottom-color: var(--comex-border) !important;
+  }
+
+  /* Expander */
+  [data-testid="stExpander"] {
+    border-color: var(--comex-border) !important;
+  }
+
+  [data-testid="stExpander"] summary {
+    color: var(--comex-text-primary) !important;
+    background: var(--comex-border-light) !important;
+  }
+
+  /* File uploader */
+  [data-testid="stFileUploader"] {
+    border-color: var(--comex-border) !important;
+    background: var(--comex-surface) !important;
+  }
+
+  [data-testid="stFileUploader"]:hover {
+    border-color: var(--comex-primary) !important;
+    background: rgba(237, 125, 49, 0.05) !important;
+  }
+
+  /* Metricas */
+  [data-testid="stMetric"] {
+    background: var(--comex-surface) !important;
+    border-color: var(--comex-border) !important;
+  }
+
+  /* Caption y labels */
+  [data-testid="stCaption"] {
+    color: var(--comex-text-muted) !important;
+  }
+
+  /* Divider */
+  hr {
+    border-color: var(--comex-border) !important;
+  }
+
+  /* Scrollbar dark */
+  ::-webkit-scrollbar-track {
+    background: #21262D;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #484F58;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6E7681;
+  }
+}
