@@ -54,13 +54,13 @@ def calculate_progress():
     if not st.session_state.sections_data:
         return 0
     
-    total_sections = len(SECTIONS) - 1  # Excluir portada
+    # Excluir portada e indice del calculo (indice es autogenerado)
+    editable_sections = [sec for sec in SECTIONS if sec['id'] not in ('portada', 'indice')]
+    total_sections = len(editable_sections)
     completed = 0
     
-    for sec in SECTIONS:
+    for sec in editable_sections:
         sec_id = sec['id']
-        if sec_id == 'portada':
-            continue
         if sec_id in st.session_state.sections_data:
             text = st.session_state.sections_data[sec_id].get('text', '')
             if text and len(text.strip()) > 20:
@@ -303,8 +303,9 @@ def render_sidebar():
     # Indicador de progreso
     if st.session_state.sections_data:
         progress = calculate_progress()
+        editable_count = len([sec for sec in SECTIONS if sec['id'] not in ('portada', 'indice')])
         st.sidebar.progress(progress / 100.0, text=f"Progreso: {progress}%")
-        st.sidebar.caption(f"{progress}% completado ({int(progress * (len(SECTIONS)-1) / 100)}/{len(SECTIONS)-1} secciones)")
+        st.sidebar.caption(f"{progress}% completado ({int(progress * editable_count / 100)}/{editable_count} secciones)")
     
     # Opciones de generacion con toggle switch
     st.sidebar.markdown("**Salida**")
@@ -366,7 +367,7 @@ def render_formulario():
             text_content_check = st.session_state.sections_data[sec_id].get('text', '')
             has_content = len(text_content_check.strip()) > 20 if text_content_check else False
             
-            if sec_id != 'portada':
+            if sec_id not in ('portada', 'indice'):
                 status_icon = '<i class="bi bi-check-circle-fill" style="color: #22C55E;"></i>' if has_content else '<i class="bi bi-pencil-square" style="color: #ED7D31;"></i>'
                 st.caption(f'{status_icon} Sección {"completada" if has_content else "en progreso"}', unsafe_allow_html=True)
             
@@ -439,6 +440,40 @@ def render_formulario():
                 if dmnd and titulo:
                     preview = titulo if dmnd in titulo else f"DMND{dmnd} - {titulo}"
                     st.success(f"Titulo de portada: {preview}")
+                
+                continue
+            
+            # SECCIÓN ESPECIAL: Índice (autogenerado, no editable)
+            elif sec_id == 'indice':
+                st.markdown(
+                    '<div style="background: rgba(128,128,128,0.1); border-left: 4px solid #888; padding: 16px; border-radius: 8px;">'
+                    '<i class="bi bi-lock"></i> <strong>Sección autogenerada</strong><br>'
+                    'El índice se genera automáticamente a partir del contenido de las demás secciones.'
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+                
+                st.divider()
+                st.subheader("Vista previa del Índice")
+                
+                # Generar lista de secciones con contenido
+                indice_items = []
+                for sec in SECTIONS:
+                    if sec['id'] == 'portada':
+                        continue
+                    
+                    # Verificar si tiene contenido
+                    sec_data = st.session_state.sections_data.get(sec['id'], {})
+                    sec_text = sec_data.get('text', '')
+                    has_sec_content = len(sec_text.strip()) > 20 if sec_text else False
+                    
+                    if has_sec_content:
+                        indice_items.append(f"1. **{sec['titulo']}**")
+                
+                if indice_items:
+                    st.markdown("\n".join(indice_items))
+                else:
+                    st.markdown("*Aún no hay secciones completadas. El índice se completará automáticamente.*")
                 
                 continue
             
