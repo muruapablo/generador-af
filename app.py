@@ -888,25 +888,43 @@ def render_upload_mode():
                 "Autor": meta.get('autor')
             })
             
-            # Boton separado para generar documentos
+            # Botones para generar/exportar documentos
             st.divider()
-            if st.button("Generar DOCX y HTML", type="primary", key="gen_from_md_btn"):
-                try:
-                    with st.spinner("Generando documentos..."):
-                        docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
-                            use_accordion=st.session_state.get('opt_accordion', True)
+            col_gen1, col_gen2 = st.columns(2)
+            
+            with col_gen1:
+                if st.button("Generar DOCX y HTML", type="primary", key="gen_from_md_btn", use_container_width=True):
+                    try:
+                        with st.spinner("Generando documentos..."):
+                            docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
+                                use_accordion=st.session_state.get('opt_accordion', True)
+                            )
+                            
+                            st.session_state.generated_files = {
+                                'docx': docx_path,
+                                'html': html_path,
+                                'md': md_path,
+                                'zip': zip_path
+                            }
+                            st.success("[OK] Documentos generados!")
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"[ERROR] Error al generar: {str(e)}")
+            
+            with col_gen2:
+                if st.button("Exportar Markdown", type="secondary", key="export_md_btn", use_container_width=True):
+                    try:
+                        md_content = generate_markdown()
+                        filename = get_filename()
+                        st.download_button(
+                            label="Descargar .md",
+                            data=md_content.encode('utf-8'),
+                            file_name=f"{filename}.md",
+                            mime="text/markdown",
+                            key="download_md_btn"
                         )
-                        
-                        st.session_state.generated_files = {
-                            'docx': docx_path,
-                            'html': html_path,
-                            'md': md_path,
-                            'zip': zip_path
-                        }
-                        st.success("[OK] Documentos generados!")
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"[ERROR] Error al generar: {str(e)}")
+                    except Exception as e:
+                        st.error(f"[ERROR] Error al exportar markdown: {str(e)}")
             
             # Mostrar descargas si existen archivos generados
             if st.session_state.get('generated_files'):
@@ -914,7 +932,7 @@ def render_upload_mode():
                 st.divider()
                 st.subheader("Descargas")
                 
-                col_d1, col_d2, col_d3 = st.columns(3)
+                col_d1, col_d2, col_d3, col_d4 = st.columns(4)
                 
                 with col_d1:
                     with open(files['docx'], "rb") as f:
@@ -935,6 +953,16 @@ def render_upload_mode():
                         )
                 
                 with col_d3:
+                    if 'md' in files and os.path.exists(files['md']):
+                        with open(files['md'], "rb") as f:
+                            st.download_button(
+                                label="Descargar Markdown",
+                                data=f.read(),
+                                file_name=os.path.basename(files['md']),
+                                mime="text/markdown"
+                            )
+                
+                with col_d4:
                     with open(files['zip'], "rb") as f:
                         st.download_button(
                             label="Descargar ZIP",
