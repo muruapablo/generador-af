@@ -91,6 +91,54 @@ def init_session_state():
     
     if 'generated_files' not in st.session_state:
         st.session_state.generated_files = None
+    
+    if 'modo_seleccionado' not in st.session_state:
+        st.session_state.modo_seleccionado = None
+
+
+def render_welcome_screen():
+    """Muestra la pantalla de bienvenida para seleccionar modo de trabajo."""
+    colored_header(
+        label="Generador de Análisis Funcional",
+        description="Seleccioná cómo querés empezar",
+        color_name="orange-70"
+    )
+    
+    st.markdown("### ¿Cómo querés empezar?")
+    st.caption("Elegí una opción para continuar. Podés cambiar de modo más tarde desde el sidebar.")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        with st.container(border=True):
+            st.markdown("### 📝 Formulario Web")
+            st.markdown("""
+            **Ideal para:**
+            - Crear documentos desde cero
+            - Editar sección por sección
+            - Usar el editor visual de tablas
+            - Agregar código SQL y estructuras
+            """)
+            if st.button("Comenzar con Formulario", type="primary", key="btn_formulario", use_container_width=True):
+                st.session_state.modo_seleccionado = "Formulario Web"
+                st.rerun()
+    
+    with col2:
+        with st.container(border=True):
+            st.markdown("### 📤 Subir Archivos")
+            st.markdown("""
+            **Ideal para:**
+            - Importar desde archivos Markdown
+            - Parsear documentos existentes
+            - Generar automáticamente
+            - Reutilizar contenido previo
+            """)
+            if st.button("Comenzar con Archivos", type="primary", key="btn_archivos", use_container_width=True):
+                st.session_state.modo_seleccionado = "Subir Archivos (.md)"
+                st.rerun()
+    
+    st.divider()
+    st.info("💡 **Tip:** El modo Formulario Web es el más completo y recomendado para crear documentos nuevos.")
 
 
 def save_uploaded_logo(uploaded_file) -> str:
@@ -213,17 +261,6 @@ def render_sidebar():
         style_metric_cards(border_left_color="#ED7D31")
         st.sidebar.divider()
     
-    # Modo de trabajo con option_menu (íconos)
-    modo_opcion = option_menu(
-        menu_title="Modo de trabajo",
-        options=["Formulario Web", "Subir Archivos (.md)"],
-        icons=["layout-text-window-reverse", "cloud-upload-fill"],
-        menu_icon="cast",
-        default_index=0,
-        orientation="vertical",
-    )
-    modo = modo_opcion
-    
     st.sidebar.divider()
     
     # Nombre de archivo personalizado
@@ -265,9 +302,21 @@ def render_sidebar():
     
     st.sidebar.divider()
     
+    # Botón para cambiar modo (solo si ya se seleccionó uno)
+    if st.session_state.modo_seleccionado is not None:
+        st.sidebar.divider()
+        if st.sidebar.button("🔄 Cambiar modo", key="btn_cambiar_modo", use_container_width=True):
+            st.session_state.modo_seleccionado = None
+            st.rerun()
+    
+    st.sidebar.divider()
+    
     # Info del proyecto
     st.sidebar.markdown("**Generador v1.2**")
     st.sidebar.caption("Herramienta de documentación")
+    
+    # Determinar modo actual
+    modo = st.session_state.modo_seleccionado if st.session_state.modo_seleccionado else "Formulario Web"
     
     return modo, use_accordion
 
@@ -911,7 +960,18 @@ def main():
         st.session_state.app_loaded = True
         st.rerun()
     
-    # Renderizar sidebar
+    # Si no hay modo seleccionado, mostrar welcome screen
+    if st.session_state.modo_seleccionado is None:
+        # Sidebar minimal en welcome screen
+        st.sidebar.markdown("### Generador")
+        st.sidebar.caption("Análisis Funcional")
+        st.sidebar.divider()
+        st.sidebar.info("Seleccioná un modo de trabajo para comenzar.")
+        
+        render_welcome_screen()
+        return
+    
+    # Renderizar sidebar completo
     modo, _ = render_sidebar()
     
     # Renderizar contenido principal según modo
