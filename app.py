@@ -62,8 +62,15 @@ def calculate_progress():
     for sec in editable_sections:
         sec_id = sec['id']
         if sec_id in st.session_state.sections_data:
-            text = st.session_state.sections_data[sec_id].get('text', '')
-            if text and len(text.strip()) > 20:
+            data = st.session_state.sections_data[sec_id]
+            # Verificar texto
+            text = data.get('text', '')
+            has_text = text and len(text.strip()) > 20
+            # Verificar tabla con datos
+            table = data.get('table')
+            has_table = table and table.get('rows') and len(table['rows']) > 0
+            
+            if has_text or has_table:
                 completed += 1
     
     return int((completed / total_sections) * 100) if total_sections > 0 else 0
@@ -335,7 +342,7 @@ def render_sidebar():
             st.session_state.modo_seleccionado = None
             st.rerun()
     
-    st.sidebar.caption("Generador v1.3")
+    st.sidebar.caption("Generador v1.4")
     
     # Determinar modo actual
     modo = st.session_state.modo_seleccionado if st.session_state.modo_seleccionado else "Formulario Web"
@@ -363,9 +370,13 @@ def render_formulario():
                     'table': None
                 }
             
-            # Badge de estado
-            text_content_check = st.session_state.sections_data[sec_id].get('text', '')
-            has_content = len(text_content_check.strip()) > 20 if text_content_check else False
+            # Badge de estado (verificar texto o tabla)
+            data = st.session_state.sections_data[sec_id]
+            text_content_check = data.get('text', '')
+            has_text = len(text_content_check.strip()) > 20 if text_content_check else False
+            table_check = data.get('table')
+            has_table = table_check and table_check.get('rows') and len(table_check['rows']) > 0
+            has_content = has_text or has_table
             
             if sec_id not in ('portada', 'indice', 'info_general'):
                 status_icon = '<i class="bi bi-check-circle-fill" style="color: #22C55E;"></i>' if has_content else '<i class="bi bi-pencil-square" style="color: #ED7D31;"></i>'
