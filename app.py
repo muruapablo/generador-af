@@ -166,6 +166,15 @@ def get_filename() -> str:
     return "AnalisisFuncional"
 
 
+def sync_widgets_to_sections():
+    """Copia los valores de los widgets de texto a sections_data."""
+    for sec in SECTIONS:
+        sec_id = sec['id']
+        text_key = f"ta_{sec_id}"
+        if text_key in st.session_state and sec_id in st.session_state.sections_data:
+            st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
+
+
 def generate_markdown() -> str:
     """Genera el contenido Markdown del documento actual."""
     md_content = []
@@ -992,10 +1001,20 @@ def render_upload_mode():
                 render_formulario()
                 
                 st.divider()
+                
+                # Boton para guardar cambios manualmente
+                if st.button("Guardar cambios", type="secondary", key="btn_guardar_cambios", use_container_width=True):
+                    sync_widgets_to_sections()
+                    st.success("[OK] Cambios guardados correctamente!")
+                
+                st.divider()
                 col_ed1, col_ed2 = st.columns(2)
                 with col_ed1:
                     if st.button("Generar documentos", type="primary", key="gen_from_md_editor_btn", use_container_width=True):
                         try:
+                            # Sincronizar antes de generar
+                            sync_widgets_to_sections()
+                            
                             with st.spinner("Generando documentos..."):
                                 docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
                                     use_accordion=st.session_state.get('opt_accordion', True)
