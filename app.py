@@ -351,7 +351,7 @@ def render_sidebar():
             st.session_state.modo_seleccionado = None
             st.rerun()
     
-    st.sidebar.caption("Generador v1.4")
+    st.sidebar.caption("Generador v1.5")
     
     # Determinar modo actual
     modo = st.session_state.modo_seleccionado if st.session_state.modo_seleccionado else "Formulario Web"
@@ -962,7 +962,7 @@ def render_upload_mode():
                 st.error(f"[ERROR] Error al parsear archivo: {str(e)}")
                 st.session_state.md_parsed = False
         
-        # Si ya fue parseado, mostrar resumen y boton de generar
+        # Si ya fue parseado, mostrar resumen y opciones
         if st.session_state.get('md_parsed', False):
             st.success("[OK] Archivo parseado exitosamente!")
             st.info(f"Secciones encontradas: {st.session_state.md_sections_count}")
@@ -970,13 +970,34 @@ def render_upload_mode():
             # Mostrar resumen
             st.subheader("Resumen del documento")
             meta = st.session_state.metadata
-            st.json({
-                "Titulo": meta.get('titulo'),
-                "DMND": meta.get('numero_demanda'),
-                "Autor": meta.get('autor')
-            })
+            col_m1, col_m2, col_m3 = st.columns(3)
+            with col_m1:
+                st.metric("Titulo", meta.get('titulo', '-')[:20] or '-')
+            with col_m2:
+                st.metric("DMND", meta.get('numero_demanda', '-') or '-')
+            with col_m3:
+                st.metric("Autor", meta.get('autor', '-') or '-')
             
-            # Botones para generar/exportar documentos
+            # Boton para editar contenido parseado
+            st.divider()
+            if not st.session_state.get('md_show_editor', False):
+                if st.button("Editar contenido parseado", type="primary", key="btn_editar_md", use_container_width=True):
+                    st.session_state.md_show_editor = True
+                    st.rerun()
+            else:
+                # Mostrar formulario de edicion
+                st.subheader("Editor de contenido")
+                st.caption("Editá las secciones antes de generar los documentos.")
+                
+                render_formulario()
+                
+                st.divider()
+                if st.button("Volver al resumen", key="btn_volver_resumen", use_container_width=True):
+                    st.session_state.md_show_editor = False
+                    st.rerun()
+                return  # Salir para no mostrar botones de generar debajo del formulario
+            
+            # Botones para generar/exportar documentos (solo si no esta en modo edicion)
             st.divider()
             col_gen1, col_gen2 = st.columns(2)
             
