@@ -541,82 +541,84 @@ def render_formulario():
             if text_key not in st.session_state:
                 st.session_state[text_key] = st.session_state.sections_data[sec_id].get('text', '')
             
-            # Herramientas de formato rápido
-            with st.container():
-                st.caption("Herramientas rapidas:")
-                h_col1, h_col2, h_col3, h_col4 = st.columns(4)
-                
-                with h_col1:
-                    if st.button("Insertar SQL", key=f"btn_sql_{sec_id}"):
-                        current = st.session_state[text_key]
-                        template = "\n\n```sql\n-- Escribe tu consulta SQL aqui\nSELECT * FROM tabla\nWHERE condicion = 'valor'\n```\n\n"
-                        st.session_state[text_key] = current + template
-                        st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
-                        st.rerun()
-                
-                with h_col2:
-                    if st.button("Insertar codigo", key=f"btn_code_{sec_id}"):
-                        current = st.session_state[text_key]
-                        template = "\n\n```\n// Escribe tu codigo aqui\nfunction ejemplo() {\n    return 'Hola';\n}\n```\n\n"
-                        st.session_state[text_key] = current + template
-                        st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
-                        st.rerun()
-                
-                with h_col3:
-                    if st.button("Insertar tabla", key=f"btn_table_md_{sec_id}"):
-                        # Mostrar diálogo para configurar tabla
-                        st.session_state[f"show_table_dialog_{sec_id}"] = True
-                        st.rerun()
-                
-                with h_col4:
-                    if st.button("Limpiar", key=f"btn_clear_{sec_id}"):
-                        st.session_state[text_key] = ""
-                        st.session_state.sections_data[sec_id]['text'] = ""
-                        st.rerun()
-            
-            # Diálogo de configuración de tabla
-            if st.session_state.get(f"show_table_dialog_{sec_id}", False):
-                with st.container(border=True):
-                    st.subheader("Configurar tabla")
-                    cols = st.number_input("Columnas", min_value=1, max_value=10, value=3, key=f"table_cols_{sec_id}")
-                    rows = st.number_input("Filas", min_value=1, max_value=20, value=2, key=f"table_rows_{sec_id}")
+            # Solo mostrar editor de texto para secciones que no sean historial
+            if sec_id != 'historial':
+                # Herramientas de formato rápido
+                with st.container():
+                    st.caption("Herramientas rapidas:")
+                    h_col1, h_col2, h_col3, h_col4 = st.columns(4)
                     
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        if st.button("Insertar", key=f"table_insert_{sec_id}"):
-                            # Generar tabla markdown
-                            headers = [f"Col{i+1}" for i in range(cols)]
-                            header_line = "| " + " | ".join(headers) + " |"
-                            separator = "|" + "|".join(["---"] * cols) + "|"
-                            
-                            data_lines = []
-                            for r in range(rows):
-                                cells = [f"dato{r+1}-{c+1}" for c in range(cols)]
-                                data_lines.append("| " + " | ".join(cells) + " |")
-                            
-                            template = "\n\n" + header_line + "\n" + separator + "\n" + "\n".join(data_lines) + "\n\n"
-                            
+                    with h_col1:
+                        if st.button("Insertar SQL", key=f"btn_sql_{sec_id}"):
                             current = st.session_state[text_key]
+                            template = "\n\n```sql\n-- Escribe tu consulta SQL aqui\nSELECT * FROM tabla\nWHERE condicion = 'valor'\n```\n\n"
                             st.session_state[text_key] = current + template
                             st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
-                            st.session_state[f"show_table_dialog_{sec_id}"] = False
                             st.rerun()
                     
-                    with col2:
-                        if st.button("Cancelar", key=f"table_cancel_{sec_id}"):
-                            st.session_state[f"show_table_dialog_{sec_id}"] = False
+                    with h_col2:
+                        if st.button("Insertar codigo", key=f"btn_code_{sec_id}"):
+                            current = st.session_state[text_key]
+                            template = "\n\n```\n// Escribe tu codigo aqui\nfunction ejemplo() {\n    return 'Hola';\n}\n```\n\n"
+                            st.session_state[text_key] = current + template
+                            st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
                             st.rerun()
-            
-            # Editor de texto (sin value=, usa key directamente)
-            text_content = st.text_area(
-                f"Contenido de {sec_config['titulo']}",
-                height=300,
-                key=text_key,
-                placeholder="Escribe el contenido aqui. Puedes usar markdown:\n\n# Titulo\n## Subtitulo\n**negrita**\n`codigo inline`\n\n```sql\n-- bloque de codigo\nSELECT * FROM tabla\n```\n\n| Col1 | Col2 |\n|------|------|\n| A | B |"
-            )
-            
-            # Guardar en el dict principal
-            st.session_state.sections_data[sec_id]['text'] = text_content
+                    
+                    with h_col3:
+                        if st.button("Insertar tabla", key=f"btn_table_md_{sec_id}"):
+                            # Mostrar diálogo para configurar tabla
+                            st.session_state[f"show_table_dialog_{sec_id}"] = True
+                            st.rerun()
+                    
+                    with h_col4:
+                        if st.button("Limpiar", key=f"btn_clear_{sec_id}"):
+                            st.session_state[text_key] = ""
+                            st.session_state.sections_data[sec_id]['text'] = ""
+                            st.rerun()
+                
+                # Diálogo de configuración de tabla
+                if st.session_state.get(f"show_table_dialog_{sec_id}", False):
+                    with st.container(border=True):
+                        st.subheader("Configurar tabla")
+                        cols = st.number_input("Columnas", min_value=1, max_value=10, value=3, key=f"table_cols_{sec_id}")
+                        rows = st.number_input("Filas", min_value=1, max_value=20, value=2, key=f"table_rows_{sec_id}")
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            if st.button("Insertar", key=f"table_insert_{sec_id}"):
+                                # Generar tabla markdown
+                                headers = [f"Col{i+1}" for i in range(cols)]
+                                header_line = "| " + " | ".join(headers) + " |"
+                                separator = "|" + "|".join(["---"] * cols) + "|"
+                                
+                                data_lines = []
+                                for r in range(rows):
+                                    cells = [f"dato{r+1}-{c+1}" for c in range(cols)]
+                                    data_lines.append("| " + " | ".join(cells) + " |")
+                                
+                                template = "\n\n" + header_line + "\n" + separator + "\n" + "\n".join(data_lines) + "\n\n"
+                                
+                                current = st.session_state[text_key]
+                                st.session_state[text_key] = current + template
+                                st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
+                                st.session_state[f"show_table_dialog_{sec_id}"] = False
+                                st.rerun()
+                        
+                        with col2:
+                            if st.button("Cancelar", key=f"table_cancel_{sec_id}"):
+                                st.session_state[f"show_table_dialog_{sec_id}"] = False
+                                st.rerun()
+                
+                # Editor de texto (sin value=, usa key directamente)
+                text_content = st.text_area(
+                    f"Contenido de {sec_config['titulo']}",
+                    height=300,
+                    key=text_key,
+                    placeholder="Escribe el contenido aqui. Puedes usar markdown:\n\n# Titulo\n## Subtitulo\n**negrita**\n`codigo inline`\n\n```sql\n-- bloque de codigo\nSELECT * FROM tabla\n```\n\n| Col1 | Col2 |\n|------|------|\n| A | B |"
+                )
+                
+                # Guardar en el dict principal
+                st.session_state.sections_data[sec_id]['text'] = text_content
             
             # Editor de tabla si corresponde
             if sec_config.get('requiere_tabla', False):
