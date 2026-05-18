@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import sys
+import re
 import zipfile
 import shutil
 from datetime import datetime
@@ -63,15 +64,23 @@ def calculate_progress():
         sec_id = sec['id']
         if sec_id in st.session_state.sections_data:
             data = st.session_state.sections_data[sec_id]
-            # Verificar texto
+            # Verificar texto sustancial
             text = data.get('text', '')
             has_text = text and len(text.strip()) > 20
+            # Verificar código/SQL (bloques markdown)
+            has_code = bool(re.search(r'```[\s\S]*?```', text))
             # Verificar tabla con datos
             table = data.get('table')
             has_table = table and table.get('rows') and len(table['rows']) > 0
             
-            if has_text or has_table:
-                completed += 1
+            # Para secciones con editor de código, requerir código o tabla
+            # Para otras secciones, texto es suficiente
+            if sec_id in ('reglas_desarrollo', 'descripcion_actividades'):
+                if has_code or has_table:
+                    completed += 1
+            else:
+                if has_text or has_table:
+                    completed += 1
     
     return int((completed / total_sections) * 100) if total_sections > 0 else 0
 
@@ -370,13 +379,19 @@ def render_formulario():
                     'table': None
                 }
             
-            # Badge de estado (verificar texto o tabla)
+            # Badge de estado (verificar texto, código o tabla)
             data = st.session_state.sections_data[sec_id]
             text_content_check = data.get('text', '')
             has_text = len(text_content_check.strip()) > 20 if text_content_check else False
+            has_code = bool(re.search(r'```[\s\S]*?```', text_content_check))
             table_check = data.get('table')
             has_table = table_check and table_check.get('rows') and len(table_check['rows']) > 0
-            has_content = has_text or has_table
+            
+            # Para secciones con editor de código, requerir código o tabla
+            if sec_id in ('reglas_desarrollo', 'descripcion_actividades'):
+                has_content = has_code or has_table
+            else:
+                has_content = has_text or has_table
             
             if sec_id not in ('portada', 'indice', 'info_general'):
                 status_icon = '<i class="bi bi-check-circle-fill" style="color: #22C55E;"></i>' if has_content else '<i class="bi bi-pencil-square" style="color: #ED7D31;"></i>'
@@ -475,7 +490,16 @@ def render_formulario():
                     with cols[idx % 2]:
                         sec_data = st.session_state.sections_data.get(subsec['id'], {})
                         sec_text = sec_data.get('text', '')
-                        has_content = len(sec_text.strip()) > 20 if sec_text else False
+                        has_text = len(sec_text.strip()) > 20 if sec_text else False
+                        has_code = bool(re.search(r'```[\s\S]*?```', sec_text))
+                        table_data = sec_data.get('table')
+                        has_table = table_data and table_data.get('rows') and len(table_data['rows']) > 0
+                        
+                        # Para secciones con editor de código, requerir código o tabla
+                        if subsec['id'] in ('reglas_desarrollo', 'descripcion_actividades'):
+                            has_content = has_code or has_table
+                        else:
+                            has_content = has_text or has_table
                         
                         status_color = "#22C55E" if has_content else "#ED7D31"
                         status_text = "Completada" if has_content else "Pendiente"
