@@ -166,6 +166,15 @@ def get_filename() -> str:
     return "AnalisisFuncional"
 
 
+def sync_widgets_to_sections():
+    """Sincroniza los valores de los widgets de texto con sections_data."""
+    for sec in SECTIONS:
+        sec_id = sec['id']
+        text_key = f"ta_{sec_id}"
+        if text_key in st.session_state and sec_id in st.session_state.sections_data:
+            st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
+
+
 def generate_markdown() -> str:
     """Genera el contenido Markdown del documento actual."""
     md_content = []
@@ -836,6 +845,9 @@ def render_formulario():
                 st.error("[ATENCION] Debes ingresar el número de demanda")
                 return
             
+            # Sincronizar widgets antes de generar
+            sync_widgets_to_sections()
+            
             with st.spinner("Generando documentos..."):
                 try:
                     docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
@@ -1012,6 +1024,9 @@ def render_upload_mode():
             with col_gen1:
                 if st.button("Generar DOCX y HTML", type="primary", key="gen_from_md_btn", use_container_width=True):
                     try:
+                        # Sincronizar widgets antes de generar
+                        sync_widgets_to_sections()
+                        
                         with st.spinner("Generando documentos..."):
                             docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
                                 use_accordion=st.session_state.get('opt_accordion', True)
