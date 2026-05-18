@@ -989,14 +989,6 @@ def render_upload_mode():
                 st.subheader("Editor de contenido")
                 st.caption("Editá las secciones antes de generar los documentos.")
                 
-                # Sincronizar widgets de texto con los datos parseados
-                for sec in SECTIONS:
-                    sec_id = sec['id']
-                    if sec_id in st.session_state.sections_data:
-                        text_key = f"ta_{sec_id}"
-                        current_text = st.session_state.sections_data[sec_id].get('text', '')
-                        st.session_state[text_key] = current_text
-                
                 render_formulario()
                 
                 st.divider()
