@@ -54,8 +54,8 @@ def calculate_progress():
     if not st.session_state.sections_data:
         return 0
     
-    # Excluir portada e indice del calculo (indice es autogenerado)
-    editable_sections = [sec for sec in SECTIONS if sec['id'] not in ('portada', 'indice')]
+    # Excluir portada, indice e info_general del calculo (son autogenerados/titulo agrupador)
+    editable_sections = [sec for sec in SECTIONS if sec['id'] not in ('portada', 'indice', 'info_general')]
     total_sections = len(editable_sections)
     completed = 0
     
@@ -303,7 +303,7 @@ def render_sidebar():
     # Indicador de progreso
     if st.session_state.sections_data:
         progress = calculate_progress()
-        editable_count = len([sec for sec in SECTIONS if sec['id'] not in ('portada', 'indice')])
+        editable_count = len([sec for sec in SECTIONS if sec['id'] not in ('portada', 'indice', 'info_general')])
         st.sidebar.progress(progress / 100.0, text=f"Progreso: {progress}%")
         st.sidebar.caption(f"{progress}% completado ({int(progress * editable_count / 100)}/{editable_count} secciones)")
     
@@ -367,7 +367,7 @@ def render_formulario():
             text_content_check = st.session_state.sections_data[sec_id].get('text', '')
             has_content = len(text_content_check.strip()) > 20 if text_content_check else False
             
-            if sec_id not in ('portada', 'indice'):
+            if sec_id not in ('portada', 'indice', 'info_general'):
                 status_icon = '<i class="bi bi-check-circle-fill" style="color: #22C55E;"></i>' if has_content else '<i class="bi bi-pencil-square" style="color: #ED7D31;"></i>'
                 st.caption(f'{status_icon} Sección {"completada" if has_content else "en progreso"}', unsafe_allow_html=True)
             
@@ -443,6 +443,51 @@ def render_formulario():
                 
                 continue
             
+            # SECCIÓN ESPECIAL: Información General (título agrupador, no editable)
+            elif sec_id == 'info_general':
+                st.markdown(
+                    '<div style="background: rgba(128,128,128,0.1); border-left: 4px solid #888; padding: 16px; border-radius: 8px;">'
+                    '<i class="bi bi-folder"></i> <strong>Título agrupador</strong><br>'
+                    'Esta sección agrupa las 7 secciones del análisis funcional.'
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+                
+                st.divider()
+                st.subheader("Estado del Documento")
+                
+                # Cards de subsecciones
+                subsecciones = [sec for sec in SECTIONS if sec.get('grupo') == 'Información General']
+                cols = st.columns(2)
+                
+                for idx, subsec in enumerate(subsecciones):
+                    with cols[idx % 2]:
+                        sec_data = st.session_state.sections_data.get(subsec['id'], {})
+                        sec_text = sec_data.get('text', '')
+                        has_content = len(sec_text.strip()) > 20 if sec_text else False
+                        
+                        status_color = "#22C55E" if has_content else "#ED7D31"
+                        status_text = "Completada" if has_content else "Pendiente"
+                        status_icon = "bi-check-circle-fill" if has_content else "bi-circle"
+                        
+                        st.markdown(
+                            f'<div style="border: 1px solid rgba(128,128,128,0.2); border-radius: 8px; padding: 12px; '
+                            f'border-left: 3px solid {status_color}; margin-bottom: 8px;">'
+                            f'<i class="bi {status_icon}" style="color: {status_color};"></i> '
+                            f'<strong>{subsec["titulo"]}</strong><br>'
+                            f'<span style="font-size: 12px; color: {status_color};">{status_text}</span>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                
+                st.divider()
+                # Resumen
+                completadas = sum(1 for s in subsecciones 
+                                  if len(st.session_state.sections_data.get(s['id'], {}).get('text', '').strip()) > 20)
+                st.markdown(f"**Progreso:** {completadas}/{len(subsecciones)} secciones completadas")
+                
+                continue
+            
             # SECCIÓN ESPECIAL: Índice (autogenerado, no editable)
             elif sec_id == 'indice':
                 st.markdown(
@@ -476,6 +521,15 @@ def render_formulario():
                     st.markdown("*Aún no hay secciones completadas. El índice se completará automáticamente.*")
                 
                 continue
+            
+            # Indicador de grupo
+            if sec_config.get('grupo'):
+                st.markdown(
+                    f'<div style="font-size: 12px; color: #888; margin-bottom: 4px;">'
+                    f'<i class="bi bi-folder"></i> {sec_config["grupo"]}'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
             
             # Descripción
             st.info(sec_config['descripcion'])

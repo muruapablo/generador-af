@@ -21,52 +21,61 @@ SECTIONS = [
     {
         "id": "info_general",
         "titulo": "Información General",
-        "descripcion": "Contexto, alcance y descripción general del análisis funcional.",
-        "requiere_tabla": False
+        "descripcion": "Título agrupador de las secciones del análisis funcional.",
+        "requiere_tabla": False,
+        "es_titulo_agrupador": True,
+        "subsecciones": ["historial", "necesidad", "objetivos", "descripcion_actividades", "reglas_desarrollo", "criterios_aceptacion", "aprobaciones"]
     },
     {
         "id": "historial",
-        "titulo": "Historial de Versiones",
+        "titulo": "1. Historial de Versiones",
         "descripcion": "Registro de cambios y versiones del documento.",
         "requiere_tabla": True,
-        "columnas_tabla": ["Versión", "Comentario", "Número de llamado", "Fecha", "Autor"]
+        "columnas_tabla": ["Versión", "Comentario", "Número de llamado", "Fecha", "Autor"],
+        "grupo": "Información General"
     },
     {
         "id": "necesidad",
-        "titulo": "Necesidad",
+        "titulo": "2. Necesidad",
         "descripcion": "Descripción de la necesidad de negocio que motiva el desarrollo.",
-        "requiere_tabla": False
+        "requiere_tabla": False,
+        "grupo": "Información General"
     },
     {
         "id": "objetivos",
-        "titulo": "Objetivos y Condiciones",
+        "titulo": "3. Objetivos y Condiciones",
         "descripcion": "Objetivos del desarrollo y condiciones que debe cumplir.",
-        "requiere_tabla": False
+        "requiere_tabla": False,
+        "grupo": "Información General"
     },
     {
         "id": "descripcion_actividades",
-        "titulo": "Descripción de las Actividades",
+        "titulo": "4. Descripción de las Actividades",
         "descripcion": "Flujo de operación actual y propuesto, actividades detalladas.",
-        "requiere_tabla": False
+        "requiere_tabla": False,
+        "grupo": "Información General"
     },
     {
         "id": "reglas_desarrollo",
-        "titulo": "Reglas para el Desarrollo",
+        "titulo": "5. Reglas para el Desarrollo",
         "descripcion": "Reglas técnicas y funcionales. Incluye definición de endpoints, SQL, estructuras de datos.",
         "requiere_tabla": True,
-        "columnas_tabla": ["Nº do Campo", "Campo", "Início", "Fin", "Tamaño", "Formato", "Dígitos decimales", "Observaciones", "Ejemplo"]
+        "columnas_tabla": ["Nº do Campo", "Campo", "Início", "Fin", "Tamaño", "Formato", "Dígitos decimales", "Observaciones", "Ejemplo"],
+        "grupo": "Información General"
     },
     {
         "id": "criterios_aceptacion",
-        "titulo": "Criterios de Aceptación",
+        "titulo": "6. Criterios de Aceptación",
         "descripcion": "Condiciones que deben cumplirse para dar por aceptado el desarrollo.",
-        "requiere_tabla": False
+        "requiere_tabla": False,
+        "grupo": "Información General"
     },
     {
         "id": "aprobaciones",
-        "titulo": "Aprobaciones",
+        "titulo": "7. Aprobaciones",
         "descripcion": "Espacio para registro de aprobaciones del documento.",
-        "requiere_tabla": False
+        "requiere_tabla": False,
+        "grupo": "Información General"
     }
 ]
 
