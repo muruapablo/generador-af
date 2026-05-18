@@ -166,15 +166,6 @@ def get_filename() -> str:
     return "AnalisisFuncional"
 
 
-def sync_widgets_to_sections():
-    """Sincroniza los valores de los widgets de texto con sections_data."""
-    for sec in SECTIONS:
-        sec_id = sec['id']
-        text_key = f"ta_{sec_id}"
-        if text_key in st.session_state and sec_id in st.session_state.sections_data:
-            st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
-
-
 def generate_markdown() -> str:
     """Genera el contenido Markdown del documento actual."""
     md_content = []
@@ -845,9 +836,6 @@ def render_formulario():
                 st.error("[ATENCION] Debes ingresar el número de demanda")
                 return
             
-            # Sincronizar widgets antes de generar
-            sync_widgets_to_sections()
-            
             with st.spinner("Generando documentos..."):
                 try:
                     docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
@@ -1012,9 +1000,76 @@ def render_upload_mode():
                 render_formulario()
                 
                 st.divider()
-                if st.button("Volver al resumen", key="btn_volver_resumen", use_container_width=True):
-                    st.session_state.md_show_editor = False
-                    st.rerun()
+                col_ed1, col_ed2 = st.columns(2)
+                with col_ed1:
+                    if st.button("Generar documentos", type="primary", key="gen_from_md_editor_btn", use_container_width=True):
+                        try:
+                            with st.spinner("Generando documentos..."):
+                                docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
+                                    use_accordion=st.session_state.get('opt_accordion', True)
+                                )
+                                
+                                st.session_state.generated_files = {
+                                    'docx': docx_path,
+                                    'html': html_path,
+                                    'md': md_path,
+                                    'zip': zip_path
+                                }
+                                st.success("[OK] Documentos generados!")
+                                st.rerun()
+                        except Exception as e:
+                            st.error(f"[ERROR] Error al generar: {str(e)}")
+                
+                with col_ed2:
+                    if st.button("Volver al resumen", key="btn_volver_resumen", use_container_width=True):
+                        st.session_state.md_show_editor = False
+                        st.rerun()
+                
+                # Mostrar descargas si existen archivos generados
+                if st.session_state.get('generated_files'):
+                    files = st.session_state.generated_files
+                    st.divider()
+                    st.subheader("Descargas")
+                    
+                    col_d1, col_d2, col_d3, col_d4 = st.columns(4)
+                    
+                    with col_d1:
+                        with open(files['docx'], "rb") as f:
+                            st.download_button(
+                                label="Descargar DOCX",
+                                data=f.read(),
+                                file_name=os.path.basename(files['docx']),
+                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            )
+                    
+                    with col_d2:
+                        with open(files['html'], "rb") as f:
+                            st.download_button(
+                                label="Descargar HTML",
+                                data=f.read(),
+                                file_name=os.path.basename(files['html']),
+                                mime="text/html"
+                            )
+                    
+                    with col_d3:
+                        if 'md' in files and os.path.exists(files['md']):
+                            with open(files['md'], "rb") as f:
+                                st.download_button(
+                                    label="Descargar Markdown",
+                                    data=f.read(),
+                                    file_name=os.path.basename(files['md']),
+                                    mime="text/markdown"
+                                )
+                    
+                    with col_d4:
+                        with open(files['zip'], "rb") as f:
+                            st.download_button(
+                                label="Descargar ZIP",
+                                data=f.read(),
+                                file_name=os.path.basename(files['zip']),
+                                mime="application/zip"
+                            )
+                
                 return  # Salir para no mostrar botones de generar debajo del formulario
             
             # Botones para generar/exportar documentos (solo si no esta en modo edicion)
@@ -1024,9 +1079,6 @@ def render_upload_mode():
             with col_gen1:
                 if st.button("Generar DOCX y HTML", type="primary", key="gen_from_md_btn", use_container_width=True):
                     try:
-                        # Sincronizar widgets antes de generar
-                        sync_widgets_to_sections()
-                        
                         with st.spinner("Generando documentos..."):
                             docx_path, html_path, html_full_path, md_path, zip_path, output_dir = generate_documents(
                                 use_accordion=st.session_state.get('opt_accordion', True)
