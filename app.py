@@ -106,6 +106,9 @@ def init_session_state():
     if 'md_parsed' not in st.session_state:
         st.session_state.md_parsed = False
     
+    if 'modo_lectura' not in st.session_state:
+        st.session_state.modo_lectura = False
+    
     if 'md_sections_count' not in st.session_state:
         st.session_state.md_sections_count = 0
     
@@ -373,6 +376,17 @@ def render_formulario():
     st.header("Generador de Análisis Funcional", divider="orange")
     st.caption("Completa las secciones del documento. El formato corporativo se aplicará automáticamente.")
     
+    # Toggle modo lectura
+    modo_col1, modo_col2 = st.columns([1, 4])
+    with modo_col1:
+        modo_lectura = st.toggle("Modo lectura", value=st.session_state.modo_lectura, key="toggle_modo_lectura")
+        st.session_state.modo_lectura = modo_lectura
+    with modo_col2:
+        if modo_lectura:
+            st.info("Estás en modo lectura. Los cambios deben hacerse en modo edición.", icon="📖")
+        else:
+            st.caption("Editá el contenido de cada sección.")
+    
     # Tabs por sección
     section_titles = [sec['titulo'] for sec in SECTIONS]
     tabs = st.tabs(section_titles)
@@ -408,73 +422,88 @@ def render_formulario():
             
             # SECCIÓN ESPECIAL: Portada (metadatos)
             if sec_id == 'portada':
-                st.info("Completa los datos de la portada del documento.")
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.session_state.metadata['numero_demanda'] = st.text_input(
-                        "Numero de demanda",
-                        value=st.session_state.metadata.get('numero_demanda', ''),
-                        key="portada_dmnd"
-                    )
-                with col2:
-                    st.session_state.metadata['titulo'] = st.text_input(
-                        "Titulo del documento",
-                        value=st.session_state.metadata.get('titulo', ''),
-                        key="portada_titulo"
-                    )
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    import datetime as dt_module
-                    # Convertir fecha guardada a objeto date para el date_input
-                    fecha_str = st.session_state.metadata.get('fecha', datetime.now().strftime('%d-%m-%Y'))
-                    try:
-                        fecha_parts = fecha_str.split('-')
-                        fecha_default = dt_module.date(int(fecha_parts[2]), int(fecha_parts[1]), int(fecha_parts[0]))
-                    except (ValueError, IndexError):
-                        fecha_default = dt_module.date.today()
+                if modo_lectura:
+                    # Modo lectura: mostrar datos como tarjeta
+                    meta = st.session_state.metadata
+                    st.subheader("Datos de la Portada")
+                    col_m1, col_m2 = st.columns(2)
+                    with col_m1:
+                        st.markdown(f"**Número de demanda:** {meta.get('numero_demanda', '—')}")
+                        st.markdown(f"**Título:** {meta.get('titulo', '—')}")
+                        st.markdown(f"**Fecha:** {meta.get('fecha', '—')}")
+                    with col_m2:
+                        st.markdown(f"**Ciclo:** {meta.get('ciclo', '—')}")
+                        st.markdown(f"**Sistema/Módulo:** {meta.get('sistema', '—')}")
+                        st.markdown(f"**Versión:** {meta.get('version', '—')}")
+                        st.markdown(f"**Autor:** {meta.get('autor', '—')}")
+                else:
+                    st.info("Completa los datos de la portada del documento.")
                     
-                    fecha_seleccionada = st.date_input(
-                        "Fecha",
-                        value=fecha_default,
-                        format="DD-MM-YYYY",
-                        key="portada_fecha"
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.session_state.metadata['numero_demanda'] = st.text_input(
+                            "Numero de demanda",
+                            value=st.session_state.metadata.get('numero_demanda', ''),
+                            key="portada_dmnd"
+                        )
+                    with col2:
+                        st.session_state.metadata['titulo'] = st.text_input(
+                            "Titulo del documento",
+                            value=st.session_state.metadata.get('titulo', ''),
+                            key="portada_titulo"
+                        )
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        import datetime as dt_module
+                        # Convertir fecha guardada a objeto date para el date_input
+                        fecha_str = st.session_state.metadata.get('fecha', datetime.now().strftime('%d-%m-%Y'))
+                        try:
+                            fecha_parts = fecha_str.split('-')
+                            fecha_default = dt_module.date(int(fecha_parts[2]), int(fecha_parts[1]), int(fecha_parts[0]))
+                        except (ValueError, IndexError):
+                            fecha_default = dt_module.date.today()
+                        
+                        fecha_seleccionada = st.date_input(
+                            "Fecha",
+                            value=fecha_default,
+                            format="DD-MM-YYYY",
+                            key="portada_fecha"
+                        )
+                        st.session_state.metadata['fecha'] = fecha_seleccionada.strftime('%d-%m-%Y')
+                    with col2:
+                        st.session_state.metadata['ciclo'] = st.text_input(
+                            "Ciclo",
+                            value=st.session_state.metadata.get('ciclo', ''),
+                            key="portada_ciclo"
+                        )
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.session_state.metadata['sistema'] = st.text_input(
+                            "Sistema/Modulo",
+                            value=st.session_state.metadata.get('sistema', 'COMEX'),
+                            key="portada_sistema"
+                        )
+                    with col2:
+                        st.session_state.metadata['version'] = st.text_input(
+                            "Version",
+                            value=st.session_state.metadata.get('version', '1.0'),
+                            key="portada_version"
+                        )
+                    
+                    st.session_state.metadata['autor'] = st.text_input(
+                        "Autor",
+                        value=st.session_state.metadata.get('autor', ''),
+                        key="portada_autor"
                     )
-                    st.session_state.metadata['fecha'] = fecha_seleccionada.strftime('%d-%m-%Y')
-                with col2:
-                    st.session_state.metadata['ciclo'] = st.text_input(
-                        "Ciclo",
-                        value=st.session_state.metadata.get('ciclo', ''),
-                        key="portada_ciclo"
-                    )
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.session_state.metadata['sistema'] = st.text_input(
-                        "Sistema/Modulo",
-                        value=st.session_state.metadata.get('sistema', 'COMEX'),
-                        key="portada_sistema"
-                    )
-                with col2:
-                    st.session_state.metadata['version'] = st.text_input(
-                        "Version",
-                        value=st.session_state.metadata.get('version', '1.0'),
-                        key="portada_version"
-                    )
-                
-                st.session_state.metadata['autor'] = st.text_input(
-                    "Autor",
-                    value=st.session_state.metadata.get('autor', ''),
-                    key="portada_autor"
-                )
-                
-                # Vista previa del titulo
-                dmnd = st.session_state.metadata.get('numero_demanda', '')
-                titulo = st.session_state.metadata.get('titulo', '')
-                if dmnd and titulo:
-                    preview = titulo if dmnd in titulo else f"DMND{dmnd} - {titulo}"
-                    st.success(f"Titulo de portada: {preview}")
+                    
+                    # Vista previa del titulo
+                    dmnd = st.session_state.metadata.get('numero_demanda', '')
+                    titulo = st.session_state.metadata.get('titulo', '')
+                    if dmnd and titulo:
+                        preview = titulo if dmnd in titulo else f"DMND{dmnd} - {titulo}"
+                        st.success(f"Titulo de portada: {preview}")
                 
                 continue
             
@@ -578,105 +607,120 @@ def render_formulario():
             # Descripción
             st.info(sec_config['descripcion'])
             
-            # Editor de texto
+            # Editor de texto o vista previa
             text_key = f"ta_{sec_id}"
             
-            # Inicializar el widget key en session_state si no existe
-            if text_key not in st.session_state:
-                st.session_state[text_key] = st.session_state.sections_data[sec_id].get('text', '')
-            
-            # Solo mostrar editor de texto para secciones que no sean historial
-            if sec_id != 'historial':
-                # Herramientas de formato rápido
-                with st.container():
-                    st.caption("Herramientas rapidas:")
-                    h_col1, h_col2, h_col3, h_col4 = st.columns(4)
-                    
-                    with h_col1:
-                        if st.button("Insertar SQL", key=f"btn_sql_{sec_id}"):
-                            current = st.session_state[text_key]
-                            template = "\n\n```sql\n-- Escribe tu consulta SQL aqui\nSELECT * FROM tabla\nWHERE condicion = 'valor'\n```\n\n"
-                            st.session_state[text_key] = current + template
-                            st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
-                            st.rerun()
-                    
-                    with h_col2:
-                        if st.button("Insertar codigo", key=f"btn_code_{sec_id}"):
-                            current = st.session_state[text_key]
-                            template = "\n\n```\n// Escribe tu codigo aqui\nfunction ejemplo() {\n    return 'Hola';\n}\n```\n\n"
-                            st.session_state[text_key] = current + template
-                            st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
-                            st.rerun()
-                    
-                    with h_col3:
-                        if st.button("Insertar tabla", key=f"btn_table_md_{sec_id}"):
-                            # Mostrar diálogo para configurar tabla
-                            st.session_state[f"show_table_dialog_{sec_id}"] = True
-                            st.rerun()
-                    
-                    with h_col4:
-                        if st.button("Limpiar", key=f"btn_clear_{sec_id}"):
-                            st.session_state[text_key] = ""
-                            st.session_state.sections_data[sec_id]['text'] = ""
-                            st.rerun()
+            if modo_lectura and sec_id != 'historial':
+                # Modo lectura: renderizar contenido markdown
+                text_content = st.session_state.sections_data[sec_id].get('text', '')
+                if text_content.strip():
+                    st.markdown(text_content)
+                else:
+                    st.markdown("*Sin contenido*")
+            elif modo_lectura and sec_id == 'historial':
+                # Modo lectura para historial: solo mostrar tabla
+                pass  # Se maneja abajo en el bloque de tabla
+            else:
+                # Modo edición
+                # Inicializar el widget key en session_state si no existe
+                if text_key not in st.session_state:
+                    st.session_state[text_key] = st.session_state.sections_data[sec_id].get('text', '')
                 
-                # Diálogo de configuración de tabla
-                if st.session_state.get(f"show_table_dialog_{sec_id}", False):
-                    with st.container(border=True):
-                        st.subheader("Configurar tabla")
-                        cols = st.number_input("Columnas", min_value=1, max_value=10, value=3, key=f"table_cols_{sec_id}")
-                        rows = st.number_input("Filas", min_value=1, max_value=20, value=2, key=f"table_rows_{sec_id}")
+                # Solo mostrar editor de texto para secciones que no sean historial
+                if sec_id != 'historial':
+                    # Herramientas de formato rápido
+                    with st.container():
+                        st.caption("Herramientas rapidas:")
+                        h_col1, h_col2, h_col3, h_col4 = st.columns(4)
                         
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            if st.button("Insertar", key=f"table_insert_{sec_id}"):
-                                # Generar tabla markdown
-                                headers = [f"Col{i+1}" for i in range(cols)]
-                                header_line = "| " + " | ".join(headers) + " |"
-                                separator = "|" + "|".join(["---"] * cols) + "|"
-                                
-                                data_lines = []
-                                for r in range(rows):
-                                    cells = [f"dato{r+1}-{c+1}" for c in range(cols)]
-                                    data_lines.append("| " + " | ".join(cells) + " |")
-                                
-                                template = "\n\n" + header_line + "\n" + separator + "\n" + "\n".join(data_lines) + "\n\n"
-                                
+                        with h_col1:
+                            if st.button("Insertar SQL", key=f"btn_sql_{sec_id}"):
                                 current = st.session_state[text_key]
+                                template = "\n\n```sql\n-- Escribe tu consulta SQL aqui\nSELECT * FROM tabla\nWHERE condicion = 'valor'\n```\n\n"
                                 st.session_state[text_key] = current + template
                                 st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
-                                st.session_state[f"show_table_dialog_{sec_id}"] = False
                                 st.rerun()
                         
-                        with col2:
-                            if st.button("Cancelar", key=f"table_cancel_{sec_id}"):
-                                st.session_state[f"show_table_dialog_{sec_id}"] = False
+                        with h_col2:
+                            if st.button("Insertar codigo", key=f"btn_code_{sec_id}"):
+                                current = st.session_state[text_key]
+                                template = "\n\n```\n// Escribe tu codigo aqui\nfunction ejemplo() {\n    return 'Hola';\n}\n```\n\n"
+                                st.session_state[text_key] = current + template
+                                st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
                                 st.rerun()
-                
-                # Editor de texto (sin value=, usa key directamente)
-                text_content = st.text_area(
-                    f"Contenido de {sec_config['titulo']}",
-                    height=300,
-                    key=text_key,
-                    placeholder="Escribe el contenido aqui. Puedes usar markdown:\n\n# Titulo\n## Subtitulo\n**negrita**\n`codigo inline`\n\n```sql\n-- bloque de codigo\nSELECT * FROM tabla\n```\n\n| Col1 | Col2 |\n|------|------|\n| A | B |"
-                )
-                
-                # Guardar en el dict principal
-                st.session_state.sections_data[sec_id]['text'] = text_content
+                        
+                        with h_col3:
+                            if st.button("Insertar tabla", key=f"btn_table_md_{sec_id}"):
+                                # Mostrar diálogo para configurar tabla
+                                st.session_state[f"show_table_dialog_{sec_id}"] = True
+                                st.rerun()
+                        
+                        with h_col4:
+                            if st.button("Limpiar", key=f"btn_clear_{sec_id}"):
+                                st.session_state[text_key] = ""
+                                st.session_state.sections_data[sec_id]['text'] = ""
+                                st.rerun()
+                    
+                    # Diálogo de configuración de tabla
+                    if st.session_state.get(f"show_table_dialog_{sec_id}", False):
+                        with st.container(border=True):
+                            st.subheader("Configurar tabla")
+                            cols = st.number_input("Columnas", min_value=1, max_value=10, value=3, key=f"table_cols_{sec_id}")
+                            rows = st.number_input("Filas", min_value=1, max_value=20, value=2, key=f"table_rows_{sec_id}")
+                            
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                if st.button("Insertar", key=f"table_insert_{sec_id}"):
+                                    # Generar tabla markdown
+                                    headers = [f"Col{i+1}" for i in range(cols)]
+                                    header_line = "| " + " | ".join(headers) + " |"
+                                    separator = "|" + "|".join(["---"] * cols) + "|"
+                                    
+                                    data_lines = []
+                                    for r in range(rows):
+                                        cells = [f"dato{r+1}-{c+1}" for c in range(cols)]
+                                        data_lines.append("| " + " | ".join(cells) + " |")
+                                    
+                                    template = "\n\n" + header_line + "\n" + separator + "\n" + "\n".join(data_lines) + "\n\n"
+                                    
+                                    current = st.session_state[text_key]
+                                    st.session_state[text_key] = current + template
+                                    st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
+                                    st.session_state[f"show_table_dialog_{sec_id}"] = False
+                                    st.rerun()
+                            
+                            with col2:
+                                if st.button("Cancelar", key=f"table_cancel_{sec_id}"):
+                                    st.session_state[f"show_table_dialog_{sec_id}"] = False
+                                    st.rerun()
+                    
+                    # Editor de texto (sin value=, usa key directamente)
+                    text_content = st.text_area(
+                        f"Contenido de {sec_config['titulo']}",
+                        height=300,
+                        key=text_key,
+                        placeholder="Escribe el contenido aqui. Puedes usar markdown:\n\n# Titulo\n## Subtitulo\n**negrita**\n`codigo inline`\n\n```sql\n-- bloque de codigo\nSELECT * FROM tabla\n```\n\n| Col1 | Col2 |\n|------|------|\n| A | B |"
+                    )
+                    
+                    # Guardar en el dict principal
+                    st.session_state.sections_data[sec_id]['text'] = text_content
             
             # Editor de tabla si corresponde
             if sec_config.get('requiere_tabla', False):
                 st.divider()
                 
-                # Checkbox para incluir/excluir tabla
-                # Para Reglas, deshabilitado por defecto (no es un dato recurrente)
-                default_include = False if sec_id == 'reglas_desarrollo' else True
-                include_table = st.checkbox(
-                    "Incluir tabla de estructura",
-                    value=st.session_state.sections_data[sec_id].get('include_table', default_include),
-                    key=f"include_table_{sec_id}"
-                )
-                st.session_state.sections_data[sec_id]['include_table'] = include_table
+                # Checkbox para incluir/excluir tabla (solo en modo edición)
+                if not modo_lectura:
+                    # Para Reglas, deshabilitado por defecto (no es un dato recurrente)
+                    default_include = False if sec_id == 'reglas_desarrollo' else True
+                    include_table = st.checkbox(
+                        "Incluir tabla de estructura",
+                        value=st.session_state.sections_data[sec_id].get('include_table', default_include),
+                        key=f"include_table_{sec_id}"
+                    )
+                    st.session_state.sections_data[sec_id]['include_table'] = include_table
+                
+                include_table = st.session_state.sections_data[sec_id].get('include_table', True)
                 
                 if include_table:
                     st.subheader("Tabla de datos")
@@ -686,7 +730,7 @@ def render_formulario():
                     # Obtener tabla actual o crear nueva
                     table_data = st.session_state.sections_data[sec_id].get('table')
                     
-                    # HISTORIAL DE VERSIONES - Editor especial
+                    # HISTORIAL DE VERSIONES
                     if sec_id == 'historial':
                         import pandas as pd
                         
@@ -721,76 +765,77 @@ def render_formulario():
                                 columns=table_data.get('headers', columns)
                             )
                         
-                        # Mostrar tabla
+                        # Mostrar tabla (en modo lectura solo visualización)
                         st.dataframe(df, width='stretch', hide_index=True)
                         
-                        # Botones para agregar/quitar filas
-                        col_add, col_remove = st.columns(2)
-                        with col_add:
-                            if st.button("+ Agregar fila", key=f"add_row_{sec_id}"):
-                                new_row = {}
-                                for col in columns:
-                                    if col == 'Versión' or col == 'Version':
-                                        new_row[col] = st.session_state.metadata.get('version', '')
-                                    elif col == 'Autor':
-                                        new_row[col] = st.session_state.metadata.get('autor', '')
-                                    elif col == 'Fecha':
-                                        new_row[col] = st.session_state.metadata.get('fecha', '')
-                                    elif col == 'Número de llamado':
-                                        dmnd = st.session_state.metadata.get('numero_demanda', '')
-                                        new_row[col] = f"DMND{dmnd}" if dmnd else ''
-                                    else:
-                                        new_row[col] = ''
-                                df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-                                st.session_state.sections_data[sec_id]['table'] = {
-                                    'headers': df.columns.tolist(),
-                                    'rows': df.values.tolist()
-                                }
-                                st.rerun()
-                        
-                        with col_remove:
-                            if len(df) > 1:
-                                if st.button("- Quitar ultima fila", key=f"remove_row_{sec_id}"):
-                                    df = df.iloc[:-1].reset_index(drop=True)
+                        if not modo_lectura:
+                            # Botones para agregar/quitar filas (solo edición)
+                            col_add, col_remove = st.columns(2)
+                            with col_add:
+                                if st.button("+ Agregar fila", key=f"add_row_{sec_id}"):
+                                    new_row = {}
+                                    for col in columns:
+                                        if col == 'Versión' or col == 'Version':
+                                            new_row[col] = st.session_state.metadata.get('version', '')
+                                        elif col == 'Autor':
+                                            new_row[col] = st.session_state.metadata.get('autor', '')
+                                        elif col == 'Fecha':
+                                            new_row[col] = st.session_state.metadata.get('fecha', '')
+                                        elif col == 'Número de llamado':
+                                            dmnd = st.session_state.metadata.get('numero_demanda', '')
+                                            new_row[col] = f"DMND{dmnd}" if dmnd else ''
+                                        else:
+                                            new_row[col] = ''
+                                    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
                                     st.session_state.sections_data[sec_id]['table'] = {
                                         'headers': df.columns.tolist(),
                                         'rows': df.values.tolist()
                                     }
                                     st.rerun()
-                            else:
-                                st.button("- Quitar ultima fila", key=f"remove_row_{sec_id}", disabled=True)
-                        
-                        # Editor inline de celdas
-                        st.markdown("**Editar valores:**")
-                        edited_rows = []
-                        for idx, row in df.iterrows():
-                            cols_ui = st.columns(len(columns))
-                            new_row = []
-                            for i, col in enumerate(columns):
-                                with cols_ui[i]:
-                                    if col == 'Fecha':
-                                        # Date picker para fechas
-                                        val = st.date_input(
-                                            col,
-                                            value=None,
-                                            key=f"hist_date_{sec_id}_{idx}_{i}"
-                                        )
-                                        new_row.append(str(val) if val else row.get(col, ''))
-                                    else:
-                                        val = st.text_input(
-                                            col,
-                                            value=str(row.get(col, '')),
-                                            key=f"hist_{sec_id}_{idx}_{i}"
-                                        )
-                                        new_row.append(val)
-                            edited_rows.append(new_row)
-                        
-                        # Actualizar datos
-                        df = pd.DataFrame(edited_rows, columns=columns)
-                        st.session_state.sections_data[sec_id]['table'] = {
-                            'headers': df.columns.tolist(),
-                            'rows': df.values.tolist()
-                        }
+                            
+                            with col_remove:
+                                if len(df) > 1:
+                                    if st.button("- Quitar ultima fila", key=f"remove_row_{sec_id}"):
+                                        df = df.iloc[:-1].reset_index(drop=True)
+                                        st.session_state.sections_data[sec_id]['table'] = {
+                                            'headers': df.columns.tolist(),
+                                            'rows': df.values.tolist()
+                                        }
+                                        st.rerun()
+                                else:
+                                    st.button("- Quitar ultima fila", key=f"remove_row_{sec_id}", disabled=True)
+                            
+                            # Editor inline de celdas
+                            st.markdown("**Editar valores:**")
+                            edited_rows = []
+                            for idx, row in df.iterrows():
+                                cols_ui = st.columns(len(columns))
+                                new_row = []
+                                for i, col in enumerate(columns):
+                                    with cols_ui[i]:
+                                        if col == 'Fecha':
+                                            # Date picker para fechas
+                                            val = st.date_input(
+                                                col,
+                                                value=None,
+                                                key=f"hist_date_{sec_id}_{idx}_{i}"
+                                            )
+                                            new_row.append(str(val) if val else row.get(col, ''))
+                                        else:
+                                            val = st.text_input(
+                                                col,
+                                                value=str(row.get(col, '')),
+                                                key=f"hist_{sec_id}_{idx}_{i}"
+                                            )
+                                            new_row.append(val)
+                                edited_rows.append(new_row)
+                            
+                            # Actualizar datos
+                            df = pd.DataFrame(edited_rows, columns=columns)
+                            st.session_state.sections_data[sec_id]['table'] = {
+                                'headers': df.columns.tolist(),
+                                'rows': df.values.tolist()
+                            }
                     
                     else:
                         # Editor estandar para otras secciones
