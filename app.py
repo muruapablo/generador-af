@@ -117,6 +117,9 @@ def init_session_state():
     
     if 'modo_seleccionado' not in st.session_state:
         st.session_state.modo_seleccionado = None
+    
+    if 'md_editor_initialized' not in st.session_state:
+        st.session_state.md_editor_initialized = False
 
 
 def render_welcome_screen():
@@ -178,17 +181,28 @@ def sync_widgets_to_sections():
             st.session_state.sections_data[sec_id]['text'] = st.session_state[text_key]
 
 
-def sync_sections_to_widgets():
-    """Copia los valores de sections_data a los widgets SOLO si el widget esta vacio."""
+def init_editor_from_parsed():
+    """Inicializa los widgets del editor con los datos parseados del .md.
+    Se ejecuta UNA SOLA VEZ al entrar al editor desde un archivo parseado."""
+    if st.session_state.get('md_editor_initialized', False):
+        return
+    
+    # Limpiar cualquier estado previo de widgets
+    for sec in SECTIONS:
+        sec_id = sec['id']
+        text_key = f"ta_{sec_id}"
+        if text_key in st.session_state:
+            del st.session_state[text_key]
+    
+    # Inicializar widgets con datos parseados
     for sec in SECTIONS:
         sec_id = sec['id']
         text_key = f"ta_{sec_id}"
         if sec_id in st.session_state.sections_data:
-            sections_text = st.session_state.sections_data[sec_id].get('text', '')
-            widget_text = st.session_state.get(text_key, '')
-            # Solo sincronizar si sections_data tiene datos y el widget esta vacio
-            if sections_text.strip() and not widget_text.strip():
-                st.session_state[text_key] = sections_text
+            parsed_text = st.session_state.sections_data[sec_id].get('text', '')
+            st.session_state[text_key] = parsed_text
+    
+    st.session_state.md_editor_initialized = True
 
 
 def generate_markdown() -> str:
@@ -386,8 +400,8 @@ def render_sidebar():
 
 def render_formulario():
     """Renderiza el formulario web con secciones predefinidas."""
-    # Sincronizar datos de sections_data a los widgets antes de renderizar
-    sync_sections_to_widgets()
+    # Inicializar editor desde datos parseados (solo una vez)
+    init_editor_from_parsed()
     
     st.header("Generador de Análisis Funcional", divider="orange")
     st.caption("Completa las secciones del documento. El formato corporativo se aplicará automáticamente.")
@@ -1023,9 +1037,10 @@ def render_upload_mode():
                         text_key = f"ta_{sec_id}"
                         st.session_state[text_key] = data['text']
                     
-                    # Marcar como parseado
+                    # Marcar como parseado y resetear flag de inicializacion
                     st.session_state.md_parsed = True
                     st.session_state.md_sections_count = len(parsed_sections)
+                    st.session_state.md_editor_initialized = False
                     st.rerun()
             
             except Exception as e:
@@ -1052,6 +1067,8 @@ def render_upload_mode():
             st.divider()
             if not st.session_state.get('md_show_editor', False):
                 if st.button("Editar contenido parseado", type="primary", key="btn_editar_md", use_container_width=True):
+                    # Resetear flag para forzar inicializacion fresca de widgets
+                    st.session_state.md_editor_initialized = False
                     st.session_state.md_show_editor = True
                     st.rerun()
             else:
@@ -1095,6 +1112,7 @@ def render_upload_mode():
                 with col_ed2:
                     if st.button("Volver al resumen", key="btn_volver_resumen", use_container_width=True):
                         st.session_state.md_show_editor = False
+                        st.session_state.md_editor_initialized = False
                         st.rerun()
                 
                 # Mostrar descargas si existen archivos generados
