@@ -179,13 +179,16 @@ def sync_widgets_to_sections():
 
 
 def sync_sections_to_widgets():
-    """Copia los valores de sections_data a los widgets de texto."""
+    """Copia los valores de sections_data a los widgets SOLO si el widget esta vacio."""
     for sec in SECTIONS:
         sec_id = sec['id']
         text_key = f"ta_{sec_id}"
         if sec_id in st.session_state.sections_data:
-            current_text = st.session_state.sections_data[sec_id].get('text', '')
-            st.session_state[text_key] = current_text
+            sections_text = st.session_state.sections_data[sec_id].get('text', '')
+            widget_text = st.session_state.get(text_key, '')
+            # Solo sincronizar si sections_data tiene datos y el widget esta vacio
+            if sections_text.strip() and not widget_text.strip():
+                st.session_state[text_key] = sections_text
 
 
 def generate_markdown() -> str:
